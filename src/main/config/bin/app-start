@@ -1,0 +1,118 @@
+#!/bin/sh
+
+usage() {
+    echo "Usage: $0 [-f|-b] <main-class> <arguments>"
+    exit 1
+}
+
+# Resolve links
+setprogdir() {
+echo "set prog dir"
+    PRG="$0"
+    while [ -h "$PRG" ]; do
+        ls=`ls -ld "$PRG"`
+        link=`expr "$ls" : '.*-> \(.*\)$'`
+        if expr "$link" : '/.*' > /dev/null; then
+            PRG="$link"
+        else
+            PRG=`dirname "$PRG"`/"$link"
+        fi
+    done
+
+    PRGDIR=`dirname "$PRG"`
+    PRG_HOME=`cd "$PRGDIR/.." >/dev/null; pwd`
+}
+
+# OS specific support
+setosvars() {
+    cygwin=false
+    os400=false
+    darwin=false
+    case "`uname`" in
+        CYGWIN*) cygwin=true;;
+        OS400*) os400=true;;
+        Darwin*) darwin=true;;
+    esac
+}
+
+#set java runtime
+setjavaruntime() {
+    if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
+        if $darwin; then
+            if [ -d "/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home" ]; then
+                export JAVA_HOME="/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK/Home"
+            fi
+        else
+            JAVA_PATH=`which java 2>/dev/null`
+            if [ "x$JAVA_PATH" != "x" ]; then
+                JAVA_PATH=`dirname $JAVA_PATH 2>/dev/null`
+                JRE_HOME=`dirname $JAVA_PATH 2>/dev/null`
+            fi
+            if [ "x$JRE_HOME" = "x" ]; then
+                if [ -x /usr/bin/java ]; then
+                    JRE_HOME=/usr
+                fi
+            fi
+        fi
+
+        if [ -z "$JAVA_HOME" -a -z "$JRE_HOME" ]; then
+            echo "Neither the JAVA_HOME nor the JRE_HOME environment variable is defined"
+            echo "At least one of these environment variable is needed to run this program"
+            exit 1
+        fi
+    fi
+
+    if [ -z "$JRE_HOME" ]; then
+        JRE_HOME="$JAVA_HOME"
+    fi
+
+    _RUNJAVA="$JRE_HOME"/bin/java
+}
+
+# Set classpath
+setclasspath() {
+    CLASSPATH="$PRG_HOME"/lib/properties:`ls -d "$PRG_HOME"/lib/* | awk '{a[NR+1]=$1}NR>1{printf a[NR]":"}END{print $1}'`
+
+    if $cygwin; then
+      CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
+    fi
+}
+
+# Get all the args
+setjvmargs() {
+    VM_OPTS=
+    if [ -r "$PRG_HOME"/etc/vmargs.file ]; then
+        VM_OPTS=`awk '{a[NR+1]=$1}NR>1{printf a[NR]" "}END{print $1}' "$PRG_HOME"/etc/vmargs.file`
+    fi
+    JAVA_OPTS=
+    if [ -r "$PRG_HOME"/etc/sysargs.properties ]; then
+        JAVA_OPTS=`awk '{a[NR+1]=$1}NR>1{printf "-D"a[NR]" "}END{print "-D"$1}' "$PRG_HOME"/etc/sysargs.properties`
+    fi
+}
+
+#Main Routine
+
+[[ $# -lt 2 ]] && usage
+
+OPTYPE="$1"
+shift
+
+MAIN_CLASS_AND_ARGS="$@"
+
+if [ -z "$PRG_HOME" ]; then
+    setprogdir
+fi
+
+setosvars
+setjavaruntime
+setclasspath 
+setjvmargs
+
+RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $JAVA_OPTS -classpath \"$CLASSPATH\" $MAIN_CLASS_AND_ARGS"
+#echo $RUNJAVA_APP
+
+if [ "$OPTYPE" = "-b" ]; then
+    eval "$RUNJAVA_APP > /dev/null 2>&1 &"
+else
+    eval $RUNJAVA_APP
+fi
