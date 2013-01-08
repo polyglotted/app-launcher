@@ -7,7 +7,7 @@
     </parent>
     <groupId>org.polyglotted</groupId>
     <artifactId>webapp-launcher</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Jetty webapp launcher</name>
     <description>Launch in-process web application using Jetty</description>
@@ -23,7 +23,7 @@
         <connection>scm:git:git@github.com:polyglotted/webapp-launcher.git</connection>
         <developerConnection>scm:git:git@github.com:polyglotted/webapp-launcher.git</developerConnection>
         <url>https://github.com/polyglotted/webapp-launcher</url>
-        <tag>webapp-launcher-1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <developers>
         <developer>
