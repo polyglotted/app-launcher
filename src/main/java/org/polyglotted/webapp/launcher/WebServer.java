@@ -71,13 +71,12 @@ public class WebServer {
         _ctx.setContextPath("/");
 
         if (isRunningInIde()) {
-            _ctx.setWar(getShadedWarUrl());
-        } else {
             _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
+        } else {
+            _ctx.setWar(getShadedWarUrl());
         }
 
         List<Handler> _handlers = new ArrayList<Handler>();
-
         _handlers.add(_ctx);
 
         HandlerList _contexts = new HandlerList();
