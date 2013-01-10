@@ -1,2 +1,2 @@
--Xms512M
--Xmx512M
+-Xms128m
+-Xmx128m
