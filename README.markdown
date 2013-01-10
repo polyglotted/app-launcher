@@ -27,7 +27,7 @@ Packaging the launcher along with your application
 
 1. Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
 2. Add an unpack execution step to unzip the configuration and launcher scripts to the target directory. The code is given below.
-
+`
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -54,7 +54,7 @@ Packaging the launcher along with your application
             </execution>
         </executions>
     </plugin>
-
+`
 3. Create a new binary assembly for your package, including all the dependencies and configurations. Add an binary execution step to the assembly to create the packages. 
 
     <plugin>
