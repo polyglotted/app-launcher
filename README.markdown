@@ -16,46 +16,51 @@ For both the use-cases the basic requirement is to first include this project wi
 Using it to run a web-application within the IDE
 -------------------------------------------------
 
-1. Add the dependency to the project POM as shown above.
-2. Set the type of the project to be _"jar"_ and not a _"war"_. But set your project to have the default maven structure for developing a web-application; i.e. the web application code should live under the _"src/main/webapp"_ directory.
-3. Ensure that the _"src/main/webapp"_ directory is added as a source folder to the build path (i.e. included in the classpath when executing code) within the IDE.
-4. Create a new java launcher, set the main class to be _"org.polyglotted.webapp.launcher.Main"_ and add a new VM argument "-Dwebapp.in.ide=true".
-5. That's it. Your application should be running in the IDE.
+Add the dependency to the project POM as shown above.
+
+Set the type of the project to be _"jar"_ and not a _"war"_. But set your project to have the default maven structure for developing a web-application; i.e. the web application code should live under the _"src/main/webapp"_ directory.
+
+Ensure that the _"src/main/webapp"_ directory is added as a source folder to the build path (i.e. included in the classpath when executing code) within the IDE.
+
+Create a new java launcher, set the main class to be _"org.polyglotted.webapp.launcher.Main"_ and add a new VM argument "-Dwebapp.in.ide=true".
+
+That's it. Your application should be running in the IDE.
 
 Packaging the launcher along with your application
 --------------------------------------------------
 
-1. Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
-2. Add an unpack execution step to unzip the configuration and launcher scripts to the target directory. The code is given below.
+Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
 
-`    <plugin>`
-`        <groupId>org.apache.maven.plugins</groupId>`
-`        <artifactId>maven-dependency-plugin</artifactId>`
-`        <version>2.6</version>`
-`        <executions>`
-`            <execution>`
-`                <id>unpack-deps</id>`
-`                <phase>prepare-package</phase>`
-`                <goals>`
-`                    <goal>unpack</goal>`
-`                </goals>`
-`                <configuration>`
-`                    <artifactItems>`
-`                        <artifactItem>`
-`                            <groupId>org.polyglotted</groupId>`
-`                            <artifactId>webapp-launcher</artifactId>`
-`                            <type>zip</type>`
-`                            <classifier>binary</classifier>`
-`                            <overWrite>false</overWrite>`
-`                            <outputDirectory>${project.build.directory}/config</outputDirectory>`
-`                        </artifactItem>`
-`                    </artifactItems>`
-`                </configuration>`
-`            </execution>`
-`        </executions>`
-`    </plugin>`
+Add an unpack execution step to unzip the configuration and launcher scripts to the target directory. The code is given below.
 
-3. Create a new binary assembly for your package, including all the dependencies and configurations. Add an binary execution step to the assembly to create the packages. 
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+            <execution>
+                <id>unpack-deps</id>
+                <phase>prepare-package</phase>
+                <goals>
+                    <goal>unpack</goal>
+                </goals>
+                <configuration>
+                    <artifactItems>
+                        <artifactItem>
+                            <groupId>org.polyglotted</groupId>
+                            <artifactId>webapp-launcher</artifactId>
+                            <type>zip</type>
+                            <classifier>binary</classifier>
+                            <overWrite>false</overWrite>
+                            <outputDirectory>${project.build.directory}/config</outputDirectory>
+                        </artifactItem>
+                    </artifactItems>
+                </configuration>
+            </execution>
+        </executions>
+    </plugin>
+
+Create a new binary assembly for your package, including all the dependencies and configurations. Add an binary execution step to the assembly to create the packages. 
 
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -76,7 +81,7 @@ Packaging the launcher along with your application
         </executions>
     </plugin>
 
-4. Create a _"binary.xml"_ file under the _"src/main/assembly"_ directory.
+Create a _"binary.xml"_ file under the _"src/main/assembly"_ directory.
 
     <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
@@ -118,9 +123,11 @@ Packaging the launcher along with your application
         </dependencySets>
     </assembly>
 
-5. Override any system / JVM arguments specific for your application (refer to next section for details)
-6. Executing `mvn package` will create your final assembled package that you can unzip in a target environment.
-7. Once unzipped, change to the main directory and you can call _"bin/appservice start"_ to start your web application. You can also use _"bin/appservice check"_ to check if the application is running and _"bin/appservice stop"_ to stop your web application.
+Override any system / JVM arguments specific for your application (refer to next section for details)
+
+Executing `mvn package` will create your final assembled package that you can unzip in a target environment.
+
+Once unzipped, change to the main directory and you can call _"bin/appservice start"_ to start your web application. You can also use _"bin/appservice check"_ to check if the application is running and _"bin/appservice stop"_ to stop your web application.
 
 Additional VM and System Configuration
 --------------------------------------
