@@ -53,7 +53,7 @@ case "$OPT" in
             echo "$SCRIPTNAME is already running"
             exit 2
         fi 
-        . "$PRG_HOME"/bin/app-start -b $_MAIN_CLASS
+        . "$PRG_HOME"/bin/appstart -b $_MAIN_CLASS
         echo $! > $PIDFILE
         ;;
 

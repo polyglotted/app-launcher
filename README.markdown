@@ -27,34 +27,34 @@ Packaging the launcher along with your application
 
 1. Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
 2. Add an unpack execution step to unzip the configuration and launcher scripts to the target directory. The code is given below.
-`
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.6</version>
-        <executions>
-            <execution>
-                <id>unpack-deps</id>
-                <phase>prepare-package</phase>
-                <goals>
-                    <goal>unpack</goal>
-                </goals>
-                <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>org.polyglotted</groupId>
-                            <artifactId>webapp-launcher</artifactId>
-                            <type>zip</type>
-                            <classifier>binary</classifier>
-                            <overWrite>false</overWrite>
-                            <outputDirectory>${project.build.directory}/config</outputDirectory>
-                        </artifactItem>
-                    </artifactItems>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
-`
+
+`    <plugin>`
+`        <groupId>org.apache.maven.plugins</groupId>`
+`        <artifactId>maven-dependency-plugin</artifactId>`
+`        <version>2.6</version>`
+`        <executions>`
+`            <execution>`
+`                <id>unpack-deps</id>`
+`                <phase>prepare-package</phase>`
+`                <goals>`
+`                    <goal>unpack</goal>`
+`                </goals>`
+`                <configuration>`
+`                    <artifactItems>`
+`                        <artifactItem>`
+`                            <groupId>org.polyglotted</groupId>`
+`                            <artifactId>webapp-launcher</artifactId>`
+`                            <type>zip</type>`
+`                            <classifier>binary</classifier>`
+`                            <overWrite>false</overWrite>`
+`                            <outputDirectory>${project.build.directory}/config</outputDirectory>`
+`                        </artifactItem>`
+`                    </artifactItems>`
+`                </configuration>`
+`            </execution>`
+`        </executions>`
+`    </plugin>`
+
 3. Create a new binary assembly for your package, including all the dependencies and configurations. Add an binary execution step to the assembly to create the packages. 
 
     <plugin>
@@ -120,7 +120,7 @@ Packaging the launcher along with your application
 
 5. Override any system / JVM arguments specific for your application (refer to next section for details)
 6. Executing `mvn package` will create your final assembled package that you can unzip in a target environment.
-7. Once unzipped, change to the main directory and you can call _"bin/app-service start"_ to start your web application. You can also use _"bin/app-service check"_ to check if the application is running and _"bin/app-service stop"_ to stop your web application.
+7. Once unzipped, change to the main directory and you can call _"bin/appservice start"_ to start your web application. You can also use _"bin/appservice check"_ to check if the application is running and _"bin/appservice stop"_ to stop your web application.
 
 Additional VM and System Configuration
 --------------------------------------
@@ -141,3 +141,5 @@ The launcher script on the command line uses two files to configure the JVM and 
     webapp.in.ide=false
 
 Please ensure not to have any empty lines on these files, as the bash script only does a simple read of them when launching the web application. The system properties can be overriden within the IDE in your launcher if you prefer.
+
+Also there is a _"bin/appstart"_ launcher that you can use to run arbitrary classes in the foreground.
