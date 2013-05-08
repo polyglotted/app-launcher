@@ -68,7 +68,7 @@ public class WebServer {
 
     private HandlerCollection createHandlers() {
         WebAppContext _ctx = new WebAppContext();
-        _ctx.setContextPath("/");
+        _ctx.setContextPath(System.getProperty("webapp.context.path", "/"));
 
         if (isRunningInIde()) {
             _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);

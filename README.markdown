@@ -10,7 +10,7 @@ For both the use-cases the basic requirement is to first include this project wi
     <dependency>
         <groupId>org.polyglotted</groupId>
         <artifactId>webapp-launcher</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </dependency>
 
 Using it to run a web-application within the IDE
@@ -22,7 +22,7 @@ Set the type of the project to be _"jar"_ and not a _"war"_. But set your projec
 
 Ensure that the _"src/main/webapp"_ directory is added as a source folder to the build path (i.e. included in the classpath when executing code) within the IDE.
 
-Create a new java launcher, set the main class to be _"org.polyglotted.webapp.launcher.Main"_ and add a new VM argument "-Dwebapp.in.ide=true".
+Create a new java launcher, set the main class to be _"org.polyglotted.webapp.launcher.Main"_ and add a new VM argument "-Dwebapp.in.ide=true". You can set the root context path with "-Dwebapp.context.path=/".
 
 That's it. Your application should be running in the IDE.
 
@@ -40,7 +40,7 @@ Add an unpack execution step to unzip the configuration and launcher scripts to 
         <executions>
             <execution>
                 <id>unpack-deps</id>
-                <phase>prepare-package</phase>
+                <phase>generate-sources</phase>
                 <goals>
                     <goal>unpack</goal>
                 </goals>
@@ -103,16 +103,18 @@ Create a _"binary.xml"_ file under the _"src/main/assembly"_ directory.
                 </includes>
             </fileSet>
             <fileSet>
-                <directory>${project.build.directory}/config</directory>
-                <outputDirectory>/</outputDirectory>
+                <directory>${project.build.directory}/config/bin</directory>
+                <outputDirectory>/bin</outputDirectory>
                 <lineEnding>unix</lineEnding>
                 <fileMode>0755</fileMode>
+                <filtered>true</filtered>
             </fileSet>
             <fileSet>
-                <directory>${project.basedir}/src/main/config</directory>
-                <outputDirectory>/</outputDirectory>
+                <directory>${project.build.directory}/config/etc</directory>
+                <outputDirectory>/etc</outputDirectory>
                 <lineEnding>unix</lineEnding>
-                <fileMode>0755</fileMode>
+                <fileMode>0644</fileMode>
+                <filtered>true</filtered>
             </fileSet>
         </fileSets>
         <dependencySets>
@@ -128,6 +130,8 @@ Override any system / JVM arguments specific for your application (refer to next
 Executing `mvn package` will create your final assembled package that you can unzip in a target environment.
 
 Once unzipped, change to the main directory and you can call _"bin/appservice start"_ to start your web application. You can also use _"bin/appservice check"_ to check if the application is running and _"bin/appservice stop"_ to stop your web application.
+
+Please find a sample usage of this launcher at <https://github.com/polyglotted/graphonomy>
 
 Additional VM and System Configuration
 --------------------------------------
@@ -146,7 +150,8 @@ The launcher script on the command line uses two files to configure the JVM and 
     jetty.http.maxThreads=100
     webapp.log.path=target/accesslogs/yyyy_mm_dd.request.log
     webapp.in.ide=false
-
+    webapp.context.path=/
+    
 Please ensure not to have any empty lines on these files, as the bash script only does a simple read of them when launching the web application. The system properties can be overriden within the IDE in your launcher if you prefer.
 
 Also there is a _"bin/appstart"_ launcher that you can use to run arbitrary classes in the foreground.
