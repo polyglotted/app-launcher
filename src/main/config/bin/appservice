@@ -43,7 +43,7 @@ setprogdir
 
 OPT=$1
 SCRIPTNAME=`basename $0`
-PIDFILE=${webapp.pid.location}/appstart.pid
+PIDFILE=${application.directory}/pid/appstart.pid
 
 _MAIN_CLASS="org.polyglotted.webapp.launcher.Main"
 

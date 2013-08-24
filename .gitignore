@@ -1,5 +1,11 @@
 # eclipse
 .settings/
+.DS_Store
+.project
+.classpath
+*.launch
+
+do_not_git_version/
 
 # idea
 *.iml
@@ -14,3 +20,6 @@ test-output/
 *.jar
 *.war
 *.ear
+
+#Jrebel
+src/main/resources/rebel.xml
