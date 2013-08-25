@@ -29,6 +29,7 @@ public class WebServer {
         public String getContextPath();
     }
 
+    private PropertyHandler handler = new PropertyHandler();
     private Server server;
 
     public void start() throws Exception {
@@ -50,29 +51,26 @@ public class WebServer {
 
     private ThreadPool createThreadPool() {
         QueuedThreadPool _threadPool = new QueuedThreadPool();
-        _threadPool.setMinThreads(intSystemProperty("jetty.http.minThreads", "10"));
-        _threadPool.setMaxThreads(intSystemProperty("jetty.http.maxThreads", "100"));
+        _threadPool.setMinThreads(handler.intProperty("jetty.http.minThreads", "10"));
+        _threadPool.setMaxThreads(handler.intProperty("jetty.http.maxThreads", "100"));
         return _threadPool;
     }
 
     private SelectChannelConnector createConnector() {
         SelectChannelConnector _connector = new SelectChannelConnector();
-        _connector.setPort(intSystemProperty("jetty.http.port", "8080"));
-        _connector.setHost(System.getProperty("jetty.http.bindInterface"));
+        _connector.setPort(handler.intProperty("jetty.http.port", "8080"));
+        _connector.setHost(handler.getProperty("jetty.http.bindInterface"));
         return _connector;
-    }
-
-    private int intSystemProperty(String prop, String def) {
-        return Integer.parseInt(System.getProperty(prop, def));
     }
 
     private HandlerCollection createHandlers() {
         WebAppContext _ctx = new WebAppContext();
-        _ctx.setContextPath(System.getProperty("webapp.context.path", "/"));
+        _ctx.setContextPath(handler.getProperty("webapp.context.path", "/"));
 
-        if (isRunningInIde()) {
+        if (handler.isTrue("webapp.in.ide", false)) {
             _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
-        } else {
+        }
+        else {
             _ctx.setWar(getShadedWarUrl());
         }
 
@@ -93,7 +91,7 @@ public class WebServer {
 
     private RequestLog createRequestLog() {
         NCSARequestLog _log = new NCSARequestLog();
-        File _logPath = new File(System.getProperty("webapp.log.path", LOG_PATH));
+        File _logPath = new File(handler.getProperty("webapp.log.path", LOG_PATH));
         _logPath.getParentFile().mkdirs();
         _log.setFilename(_logPath.getPath());
         _log.setRetainDays(90);
@@ -104,16 +102,9 @@ public class WebServer {
         return _log;
     }
 
-    private boolean isRunningInIde() {
-        return "true".equalsIgnoreCase(System.getProperty("webapp.in.ide", "false"));
-    }
-
     private String getShadedWarUrl() {
-        String _urlStr = getResource(WEB_XML).toString();
+        URL resource = Thread.currentThread().getContextClassLoader().getResource(WEB_XML);
+        String _urlStr = resource.toString();
         return _urlStr.substring(0, _urlStr.length() - 15);
-    }
-
-    private URL getResource(String aResource) {
-        return Thread.currentThread().getContextClassLoader().getResource(aResource);
     }
 }
