@@ -10,7 +10,7 @@ For both the use-cases the basic requirement is to first include this project wi
     <dependency>
         <groupId>org.polyglotted</groupId>
         <artifactId>webapp-launcher</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </dependency>
 
 Using it to run a web-application within the IDE
@@ -22,7 +22,9 @@ Set the type of the project to be _"jar"_ and not a _"war"_. But set your projec
 
 Ensure that the _"src/main/webapp"_ directory is added as a source folder to the build path (i.e. included in the classpath when executing code) within the IDE.
 
-Create a new java launcher, set the main class to be _"org.polyglotted.webapp.launcher.Main"_ and add a new VM argument "-Dwebapp.in.ide=true". You can set the root context path with "-Dwebapp.context.path=/".
+When you use maven to compile the project, it automatically generates a ${artifactId}-webapp.launch file that you can use to launch the application.
+
+It is always a good idea to create a _"src/main/config/etc/sysargs.properties"_ to setup your application profile. Refer to the section below for details.
 
 That's it. Your application should be running in the IDE.
 
@@ -31,43 +33,71 @@ Packaging the launcher along with your application
 
 Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
 
-Add an unpack execution step to unzip the configuration and launcher scripts to the target directory. The code is given below.
+Add the following plugin configuration to your POM.
 
     <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.6</version>
+        <groupId>com.github.goldin</groupId>
+        <artifactId>copy-maven-plugin</artifactId>
+        <version>0.2.5</version>
         <executions>
             <execution>
-                <id>unpack-deps</id>
+                <id>prepare-web-archive</id>
                 <phase>generate-sources</phase>
                 <goals>
-                    <goal>unpack</goal>
+                    <goal>copy</goal>
                 </goals>
                 <configuration>
-                    <artifactItems>
-                        <artifactItem>
-                            <groupId>org.polyglotted</groupId>
-                            <artifactId>webapp-launcher</artifactId>
-                            <type>zip</type>
-                            <classifier>binary</classifier>
-                            <overWrite>false</overWrite>
-                            <outputDirectory>${project.build.directory}/config</outputDirectory>
-                        </artifactItem>
-                    </artifactItems>
+                    <resources>
+                        <resource>
+                            <targetPath>${project.build.directory}/webapp-launcher</targetPath>
+                            <dependency>
+                                <groupId>org.polyglotted</groupId>
+                                <artifactId>webapp-launcher</artifactId>
+                                <version>1.0.3</version>
+                                <type>zip</type>
+                                <classifier>binary</classifier>
+                            </dependency>
+                            <unpack>true</unpack>
+                            <skipIdentical>true</skipIdentical>
+                        </resource>
+                        <resource>
+                            <targetPath>${basedir}</targetPath>
+                            <directory>${project.build.directory}/webapp-launcher/launcher</directory>
+                            <filtering>true</filtering>
+                            <skipIdentical>true</skipIdentical>
+                        </resource>
+                        <resource>
+                            <targetPath>${project.build.directory}/config</targetPath>
+                            <directory>${project.build.directory}/webapp-launcher</directory>
+                            <includes>
+                                <include>bin/**</include>
+                                <include>etc/**</include>
+                            </includes>
+                            <preservePath>true</preservePath>
+                            <filtering>true</filtering>
+                        </resource>
+                        <resource>
+                            <targetPath>${project.build.directory}/config/etc</targetPath>
+                            <directory>${basedir}/src/main/config/etc</directory>
+                            <filtering>true</filtering>
+                        </resource>
+                        <resource>
+                            <targetPath>${project.build.outputDirectory}/webapp</targetPath>
+                            <directory>${basedir}/src/main/webapp</directory>
+                            <preservePath>true</preservePath>
+                            <skipIdentical>true</skipIdentical>
+                        </resource>
+                    </resources>
                 </configuration>
             </execution>
         </executions>
     </plugin>
-
-Create a new binary assembly for your package, including all the dependencies and configurations. Add an binary execution step to the assembly to create the packages. 
-
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
             <descriptors>
-                <descriptor>src/main/assembly/binary.xml</descriptor>
+                <descriptor>${project.build.directory}/webapp-launcher/templates/assembly.xml</descriptor>
             </descriptors>
         </configuration>
         <executions>
@@ -81,49 +111,6 @@ Create a new binary assembly for your package, including all the dependencies an
         </executions>
     </plugin>
 
-Create a _"binary.xml"_ file under the _"src/main/assembly"_ directory.
-
-    <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-        <id>binary</id>
-        <includeBaseDirectory>true</includeBaseDirectory>
-        <baseDirectory>${project.artifactId}</baseDirectory>
-        <formats>
-            <format>tar.gz</format>
-            <format>zip</format>
-        </formats>
-        <fileSets>
-            <fileSet>
-                <directory>${project.basedir}</directory>
-                <outputDirectory>/</outputDirectory>
-                <includes>
-                    <include>README*</include>
-                    <include>LICENSE*</include>
-                    <include>NOTICE*</include>
-                </includes>
-            </fileSet>
-            <fileSet>
-                <directory>${project.build.directory}/config/bin</directory>
-                <outputDirectory>/bin</outputDirectory>
-                <lineEnding>unix</lineEnding>
-                <fileMode>0755</fileMode>
-                <filtered>true</filtered>
-            </fileSet>
-            <fileSet>
-                <directory>${project.build.directory}/config/etc</directory>
-                <outputDirectory>/etc</outputDirectory>
-                <lineEnding>unix</lineEnding>
-                <fileMode>0644</fileMode>
-                <filtered>true</filtered>
-            </fileSet>
-        </fileSets>
-        <dependencySets>
-            <dependencySet>
-                <outputDirectory>/lib</outputDirectory>
-                <useProjectArtifact>true</useProjectArtifact>
-            </dependencySet>
-        </dependencySets>
-    </assembly>
 
 Override any system / JVM arguments specific for your application (refer to next section for details)
 

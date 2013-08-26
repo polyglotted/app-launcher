@@ -17,7 +17,6 @@ public class PropertyHandler {
         loadPropsFromLocalFile();
         loadPropsFromGitRepo();
         overrideWithSystemProperties();
-        props.list(System.out);
     }
 
     public boolean isTrue(String prop, boolean def) {
