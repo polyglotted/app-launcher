@@ -17,10 +17,10 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.util.thread.ThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public class WebServer {
+public class WebServer implements org.polyglotted.webapp.launcher.Server {
     private static final String LOG_PATH = "target/accesslogs/yyyy_mm_dd.request.log";
-    private static final String WEB_XML = "webapp/WEB-INF/web.xml";
     private static final String PROJECT_RELATIVE_PATH_TO_WEBAPP = "src/main/webapp";
+    private static final String WEB_XML = "webapp/WEB-INF/web.xml";
 
     public static interface WebContext {
 
@@ -39,9 +39,6 @@ public class WebServer {
         server.setHandler(createHandlers());
         server.setStopAtShutdown(true);
         server.start();
-    }
-
-    public void join() throws InterruptedException {
         server.join();
     }
 

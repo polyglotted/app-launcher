@@ -1,21 +1,28 @@
 package org.polyglotted.webapp.launcher;
 
+import lombok.SneakyThrows;
+
 public class Main {
 
     public static void main(String... anArgs) throws Exception {
-
-        final WebServer server = new WebServer();
+        final Server server = getLaunchStrategy().create();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
+            @SneakyThrows
             public void run() {
-                try {
-                    System.out.println("Shutting down webserver");
-                    server.stop();
-                } catch (Exception e) {
-                }
+                System.out.println("Shutting down server");
+                server.stop();
             }
         });
         server.start();
-        server.join();
+    }
+
+    private static LaunchStrategy getLaunchStrategy() {
+        try {
+            return LaunchStrategy.valueOf(System.getProperty("main.launch.strategy"));
+        }
+        catch (Exception ex) {
+            return LaunchStrategy.WebApp;
+        }
     }
 }
