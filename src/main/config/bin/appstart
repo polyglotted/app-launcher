@@ -84,6 +84,7 @@ setjvmargs() {
     if [ -r "$PRG_HOME"/etc/vmargs.file ]; then
         VM_OPTS=`awk '{a[NR+1]=$1}NR>1{printf a[NR]" "}END{print $1}' "$PRG_HOME"/etc/vmargs.file`
     fi
+    GAV_OPTS="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Dmain.launch.strategy=${launch.strategy}"
     JAVA_OPTS=
     if [ -r "$PRG_HOME"/etc/sysargs.properties ]; then
         JAVA_OPTS=`awk '{a[NR+1]=$1}NR>1{printf "-D"a[NR]" "}END{print "-D"$1}' "$PRG_HOME"/etc/sysargs.properties`
@@ -108,7 +109,7 @@ setjavaruntime
 setclasspath 
 setjvmargs
 
-RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $JAVA_OPTS -classpath \"$CLASSPATH\" $MAIN_CLASS_AND_ARGS"
+RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $GAV_OPTS $JAVA_OPTS -classpath \"$CLASSPATH\" $MAIN_CLASS_AND_ARGS"
 #echo $RUNJAVA_APP
 
 if [ "$OPTYPE" = "-b" ]; then
