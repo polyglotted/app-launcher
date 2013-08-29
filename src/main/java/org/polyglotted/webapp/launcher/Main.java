@@ -19,7 +19,7 @@ public class Main {
 
     private static LaunchStrategy getLaunchStrategy() {
         try {
-            return LaunchStrategy.valueOf(System.getProperty("main.launch.strategy"));
+            return LaunchStrategy.valueOf(System.getProperty("main.launch.strategy", "WebApp"));
         }
         catch (Exception ex) {
             return LaunchStrategy.WebApp;
