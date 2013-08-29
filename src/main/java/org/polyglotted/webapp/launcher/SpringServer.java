@@ -30,7 +30,7 @@ public class SpringServer implements Server {
     }
 
     @Override
-    public void stop() throws Exception {
+    public void stop() {
         applicationContext.close();
         latch.countDown();
     }

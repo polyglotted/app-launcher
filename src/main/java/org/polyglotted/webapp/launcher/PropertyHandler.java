@@ -3,7 +3,6 @@ package org.polyglotted.webapp.launcher;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.util.Properties;
 
 import lombok.SneakyThrows;
@@ -11,12 +10,10 @@ import lombok.SneakyThrows;
 public class PropertyHandler {
 
     private static final String LOCAL_PROPERTIES_FILE = "src/main/config/etc/sysargs.properties";
-    private final Properties props = new Properties();
+    private final Properties props;
 
     public PropertyHandler() {
-        loadPropsFromLocalFile();
-        loadPropsFromGitRepo();
-        overrideWithSystemProperties();
+        props = loadProperties(LOCAL_PROPERTIES_FILE);
     }
 
     public boolean isTrue(String prop, boolean def) {
@@ -36,59 +33,23 @@ public class PropertyHandler {
     }
 
     @SneakyThrows
-    private void loadPropsFromLocalFile() {
-        File localFile = new File(LOCAL_PROPERTIES_FILE);
+    static Properties loadProperties(String filePath) {
+        Properties result = new Properties();
         InputStream inputStream = null;
         try {
-            if (!localFile.exists() || !localFile.canRead()) {
-                return;
+            File localFile = new File(filePath);
+            if (!localFile.isFile() || !localFile.canRead()) {
+                result.putAll(System.getProperties());
+                return result;
             }
             inputStream = new FileInputStream(localFile);
-            props.load(inputStream);
+            result.load(inputStream);
+            result.putAll(System.getProperties());
         }
         finally {
             if (inputStream != null)
                 inputStream.close();
         }
-    }
-
-    private void overrideWithSystemProperties() {
-        props.putAll(System.getProperties());
-    }
-
-    private void loadPropsFromGitRepo() {
-        if("false".equalsIgnoreCase(System.getProperty("webapp.loadfrom.gitrepo", "false"))) {
-            return;
-        }
-        if(safeClassLoadFailed("org.polyglotted.attributerepo.spring.AttribRepoResourceFactory")) {
-            return;
-        }
-        props.putAll(loadRepoProperties());
-    }
-
-    private boolean safeClassLoadFailed(String className) {
-        try {
-            Class.forName(className);
-            return false;
-        }
-        catch (ClassNotFoundException e) {
-            return true;
-        }
-    }
-
-    @SneakyThrows
-    private static final Properties loadRepoProperties() {
-        Class<?> clazz = Class.forName("org.polyglotted.attributerepo.spring.AttribRepoResourceFactory");
-        Object factory = clazz.newInstance();
-
-        Method setMethod = clazz.getMethod("setPropertiesFileLocation",
-                Class.forName("org.springframework.core.io.Resource"));
-        Object[] params = { null };
-        setMethod.invoke(factory, params);
-
-        Method loadMethod = clazz.getMethod("loadProperties", String.class);
-        Properties result = (Properties) loadMethod.invoke(factory, "launcher.properties");
-
         return result;
     }
 }

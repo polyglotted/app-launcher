@@ -5,6 +5,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.SneakyThrows;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.RequestLog;
@@ -23,7 +25,6 @@ public class WebServer implements org.polyglotted.webapp.launcher.Server {
     private static final String WEB_XML = "webapp/WEB-INF/web.xml";
 
     public static interface WebContext {
-
         public File getWarPath();
 
         public String getContextPath();
@@ -39,10 +40,17 @@ public class WebServer implements org.polyglotted.webapp.launcher.Server {
         server.setHandler(createHandlers());
         server.setStopAtShutdown(true);
         server.start();
-        server.join();
+        new Thread(new Runnable() {
+            @Override
+            @SneakyThrows
+            public void run() {
+                server.join();
+            }
+        }).start();
     }
 
-    public void stop() throws Exception {
+    @SneakyThrows
+    public void stop() {
         server.stop();
     }
 
@@ -65,7 +73,7 @@ public class WebServer implements org.polyglotted.webapp.launcher.Server {
         _ctx.setContextPath(handler.getProperty("webapp.context.path", "/"));
 
         if (handler.isTrue("webapp.in.ide", false)) {
-            _ctx.setWar(PROJECT_RELATIVE_PATH_TO_WEBAPP);
+            _ctx.setWar(ensureLocalFileExists(PROJECT_RELATIVE_PATH_TO_WEBAPP));
         }
         else {
             _ctx.setWar(getShadedWarUrl());
@@ -103,5 +111,11 @@ public class WebServer implements org.polyglotted.webapp.launcher.Server {
         URL resource = Thread.currentThread().getContextClassLoader().getResource(WEB_XML);
         String _urlStr = resource.toString();
         return _urlStr.substring(0, _urlStr.length() - 15);
+    }
+
+    static String ensureLocalFileExists(String filePath) {
+        if (!new File(filePath).isDirectory())
+            throw new IllegalStateException("Unable to find webapp directory in the project");
+        return filePath;
     }
 }

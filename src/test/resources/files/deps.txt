@@ -1,0 +1,14 @@
+com.google.guava/guava | 14.0 | Mon Feb 25 13:55:40 EST 2013
+log4j | 1.2.17 | Sun May 06 13:24:49 CEST 2012
+org.eclipse.jetty/jetty-continuation | 8.1.5.v20120716 | Mon Jul 16 16:40:31 CDT 2012
+org.eclipse.jetty/jetty-http | 8.1.5.v20120716 | Mon Jul 16 16:40:17 CDT 2012
+org.eclipse.jetty/jetty-io | 8.1.5.v20120716 | Mon Jul 16 16:39:58 CDT 2012
+org.eclipse.jetty/jetty-security | 8.1.5.v20120716 | Mon Jul 16 16:44:48 CDT 2012
+org.eclipse.jetty/jetty-server | 8.1.5.v20120716 | Mon Jul 16 16:44:07 CDT 2012
+org.eclipse.jetty/jetty-servlet | 8.1.5.v20120716 | Mon Jul 16 16:45:07 CDT 2012
+org.eclipse.jetty/jetty-util | 8.1.5.v20120716 | Mon Jul 16 16:38:57 CDT 2012
+org.eclipse.jetty/jetty-webapp | 8.1.5.v20120716 | Mon Jul 16 16:49:30 CDT 2012
+org.eclipse.jetty/jetty-xml | 8.1.5.v20120716 | Mon Jul 16 16:49:10 CDT 2012
+org.slf4j/jcl-over-slf4j | 1.7.5 | Mon Mar 25 21:49:34 CET 2013
+org.slf4j/slf4j-api | 1.7.5 | Mon Mar 25 21:49:23 CET 2013
+org.slf4j/slf4j-log4j12 | 1.7.5 | Mon Mar 25 21:49:28 CET 2013
