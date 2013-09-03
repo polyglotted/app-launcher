@@ -1,0 +1,19 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="${project.artifactId}-Main" type="Application" factoryName="Application">
+        <option name="MAIN_CLASS_NAME" value="org.polyglotted.webapp.launcher.Main" />
+        <option name="VM_PARAMETERS"
+            value="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denv=local -Dmain.launch.strategy=${launch.strategy} -Dwebapp.in.ide=true -Dwebapp.log.path=target/accesslogs/yyyy_mm_dd.request.log -Dwebapp.context.path=/" />
+        <option name="PROGRAM_PARAMETERS" value="" />
+        <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+        <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+        <option name="ALTERNATIVE_JRE_PATH" value="" />
+        <option name="ENABLE_SWING_INSPECTOR" value="false" />
+        <option name="ENV_VARIABLES" />
+        <option name="PASS_PARENT_ENVS" value="true" />
+        <module name="${project.artifactId}" />
+        <envs />
+        <RunnerSettings RunnerId="Run" />
+        <ConfigurationWrapper RunnerId="Run" />
+        <method />
+    </configuration>
+</component>

@@ -20,7 +20,7 @@ Add the dependency to the project POM as shown above.
 
 Set the type of the project to be _"jar"_ and not a _"war"_. But set your project to have the default maven structure for developing a web-application; i.e. the web application code should live under the _"src/main/webapp"_ directory.
 
-Ensure that the _"src/main/webapp"_ directory is added as a source folder to the build path (i.e. included in the classpath when executing code) within the IDE.
+Ensure that the _"src/main/webapp"_ directory is available as a folder within the IDE.
 
 When you use maven to compile the project, it automatically generates a ${artifactId}-webapp.launch file that you can use to launch the application.
 
@@ -33,7 +33,7 @@ Packaging the launcher along with your application
 
 Add the dependency to the project POM as shown above and set the type of the project to be _"jar"_.
 
-Add the following plugin configuration to your POM.
+Add the following plugin configuration to your POM. Unfortunately copy-maven-plugin does not work on Maven 3.1.x so will have to be used only with Maven 3.0. executable.
 
     <plugin>
         <groupId>com.github.goldin</groupId>
@@ -53,7 +53,7 @@ Add the following plugin configuration to your POM.
                             <dependency>
                                 <groupId>org.polyglotted</groupId>
                                 <artifactId>webapp-launcher</artifactId>
-                                <version>1.0.3</version>
+                                <version>${webapplauncher.version}</version>
                                 <type>zip</type>
                                 <classifier>binary</classifier>
                             </dependency>
@@ -62,7 +62,15 @@ Add the following plugin configuration to your POM.
                         </resource>
                         <resource>
                             <targetPath>${basedir}</targetPath>
-                            <directory>${project.build.directory}/webapp-launcher/launcher</directory>
+                            <file>${project.build.directory}/webapp-launcher/launcher/webapp.launch</file>
+                            <destFileName>${project.artifactId}-Main.launch</destFileName>
+                            <filtering>true</filtering>
+                            <skipIdentical>true</skipIdentical>
+                        </resource>
+                        <resource>
+                            <targetPath>${basedir}/.idea/runConfigurations</targetPath>
+                            <file>${project.build.directory}/webapp-launcher/launcher/webapp-idea.xml</file>
+                            <destFileName>${project.artifactId}-Main.xml</destFileName>
                             <filtering>true</filtering>
                             <skipIdentical>true</skipIdentical>
                         </resource>
@@ -80,12 +88,14 @@ Add the following plugin configuration to your POM.
                             <targetPath>${project.build.directory}/config/etc</targetPath>
                             <directory>${basedir}/src/main/config/etc</directory>
                             <filtering>true</filtering>
+                            <failIfNotFound>false</failIfNotFound>
                         </resource>
                         <resource>
                             <targetPath>${project.build.outputDirectory}/webapp</targetPath>
                             <directory>${basedir}/src/main/webapp</directory>
                             <preservePath>true</preservePath>
                             <skipIdentical>true</skipIdentical>
+                            <failIfNotFound>false</failIfNotFound>
                         </resource>
                     </resources>
                 </configuration>
