@@ -1,44 +1,42 @@
 package org.polyglotted.webapp.launcher;
 
-import static org.junit.Assert.assertEquals;
-import mockit.Expectations;
-import mockit.Mocked;
-
 import org.junit.Test;
+import org.polyglotted.webapp.core.Gaveti;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.polyglotted.webapp.core.Overrides.value;
 
 public class MainTest extends Main {
-    @Mocked Server mockServer;
 
     @Test
-    public void testGetLaunchStrategy() throws Exception {
-        System.setProperty("main.launch.strategy", "SomeApp");
-        assertEquals(LaunchStrategy.WebApp, Main.getLaunchStrategy());
-        System.clearProperty("main.launch.strategy");
+    public void startFromConfig() {
+        Starter.reset();
+
+        SpringServer server = Main.main(randomGaveti().asConfig());
+        checkAndStop(server, "");
     }
 
     @Test
-    public void testGetLaunchStrategyDefault() throws Exception {
-        assertEquals(LaunchStrategy.WebApp, Main.getLaunchStrategy());
+    public void startServerFromDifferentConfig() {
+        Starter.reset();
+
+        SpringServer server = Main.main(randomGaveti(), value("aProperty", "overriddenValue"),
+                new Class[]{DifferentConfiguration.class});
+        checkAndStop(server, "overriddenValue");
     }
 
-    @Test
-    public void testServerShutdown() throws Exception {
-        new Expectations() {
-            {
-                mockServer.stop();
-            }
-        };
-        new Main.ServerShutdown(mockServer).run();
+    private void checkAndStop(SpringServer server, String value) {
+        assertNotNull(server.getApplicationContext());
+        assertTrue(Starter.started);
+        assertThat(Starter.artifactId, is("bar"));
+        assertThat(Starter.aProperty, is(value));
+
+        server.stop();
+        assertFalse(Starter.started);
     }
 
-    @Test
-    public void testMain() throws Exception {
-        try {
-            System.setProperty("jetty.http.port", "13090");
-            Main.main(new String[0]);
-        }
-        finally {
-            System.clearProperty("jetty.http.port");
-        }
+    private Gaveti randomGaveti() {
+        return new Gaveti("foo", "bar", "1.0.0", "baz");
     }
 }
