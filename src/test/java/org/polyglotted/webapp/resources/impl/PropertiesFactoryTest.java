@@ -1,12 +1,12 @@
-package org.polyglotted.webapp.resources;
+package org.polyglotted.webapp.resources.impl;
 
 import com.google.common.collect.ImmutableMap;
 import fj.data.Option;
 import org.junit.Before;
 import org.junit.Test;
-import org.polyglotted.webapp.resources.impl.ConfigException;
-import org.polyglotted.webapp.resources.impl.DefaultPropertiesFactory;
-import org.polyglotted.webapp.resources.impl.MapValuesProvider;
+import org.polyglotted.webapp.resources.DefaultValue;
+import org.polyglotted.webapp.resources.Properties;
+import org.polyglotted.webapp.resources.Property;
 
 import java.util.HashMap;
 import java.util.Map;
