@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk7
+- oraclejdk8
 script: mvn -q deploy --settings .travis-settings.xml
 env:
   global:
