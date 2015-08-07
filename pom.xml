@@ -5,13 +5,13 @@
         <artifactId>oss-parent</artifactId>
         <version>1.2.1</version>
     </parent>
-    <artifactId>webapp-launcher</artifactId>
+    <artifactId>app-launcher</artifactId>
     <version>2.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>Jetty webapp launcher</name>
+    <name>App launcher</name>
 
-    <description>Launch in-process web application using Jetty</description>
-    <url>http://www.polyglotted.org/webapp-launcher</url>
+    <description>Launch an in-process application using Jetty</description>
+    <url>http://www.polyglotted.org/app-launcher</url>
     <scm>
         <connection>scm:git:ssh://github.com/polyglotted/webapp-launcher.git</connection>
         <developerConnection>scm:git:git+ssh://git@github.com/polyglotted/webapp-launcher.git</developerConnection>

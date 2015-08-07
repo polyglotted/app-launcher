@@ -1,11 +1,10 @@
-package app.spring;
+package io.polyglotted.app.launcher;
 
-import io.polyglotted.app.launcher.Starter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MainConfiguration {
+public class DifferentConfiguration {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public Starter starter() {

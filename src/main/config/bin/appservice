@@ -45,7 +45,7 @@ OPT=$1
 SCRIPTNAME=`basename $0`
 PIDFILE=${application.directory}/pid/appstart.pid
 
-_MAIN_CLASS="org.polyglotted.webapp.launcher.Main"
+_MAIN_CLASS="Main"
 
 case "$OPT" in
     start)
