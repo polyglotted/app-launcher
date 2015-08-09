@@ -10,12 +10,12 @@
     <packaging>jar</packaging>
     <name>App launcher</name>
 
-    <description>Launch an in-process application using Jetty</description>
+    <description>Launch an in-process application</description>
     <url>http://www.polyglotted.org/app-launcher</url>
     <scm>
-        <connection>scm:git:ssh://github.com/polyglotted/webapp-launcher.git</connection>
-        <developerConnection>scm:git:git+ssh://git@github.com/polyglotted/webapp-launcher.git</developerConnection>
-        <url>https://github.com/polyglotted/webapp-launcher</url>
+        <connection>scm:git:ssh://github.com/polyglotted/app-launcher.git</connection>
+        <developerConnection>scm:git:git+ssh://git@github.com/polyglotted/app-launcher.git</developerConnection>
+        <url>https://github.com/polyglotted/app-launcher</url>
         <tag>HEAD</tag>
     </scm>
 
