@@ -43,9 +43,9 @@ setprogdir
 
 OPT=$1
 SCRIPTNAME=`basename $0`
-PIDFILE=${application.directory}/pid/appstart.pid
+PIDFILE=/app/current/pid/appstart.pid
 
-_MAIN_CLASS="Main"
+_MAIN_CLASS="io.polyglotted.app.launcher.Main"
 
 case "$OPT" in
     start)
