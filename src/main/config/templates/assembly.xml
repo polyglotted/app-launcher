@@ -5,7 +5,6 @@
     <baseDirectory>${project.artifactId}</baseDirectory>
     <formats>
         <format>tar.gz</format>
-        <format>zip</format>
     </formats>
     <fileSets>
         <fileSet>
@@ -32,8 +31,22 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
+            <directory>${project.build.directory}/docker</directory>
+            <outputDirectory>/</outputDirectory>
+            <lineEnding>unix</lineEnding>
+            <fileMode>0644</fileMode>
+            <filtered>true</filtered>
+        </fileSet>
+        <fileSet>
             <directory>./</directory>
             <outputDirectory>/pid</outputDirectory>
+            <excludes>
+                <exclude>*/**</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <directory>./</directory>
+            <outputDirectory>/logs</outputDirectory>
             <excludes>
                 <exclude>*/**</exclude>
             </excludes>

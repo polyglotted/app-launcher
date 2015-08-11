@@ -13,7 +13,7 @@ public class MainTest extends Main {
     public void startFromConfig() {
         Starter.reset();
 
-        SpringServer server = Main.main(randomGaveti().asConfig());
+        SpringServer server = (SpringServer) Main.main(randomGaveti().asConfig());
         checkAndStop(server, "");
     }
 
@@ -21,7 +21,7 @@ public class MainTest extends Main {
     public void startServerFromDifferentConfig() {
         Starter.reset();
 
-        SpringServer server = Main.main(randomGaveti(), value("aProperty", "overriddenValue"),
+        SpringServer server = (SpringServer) Main.main(randomGaveti(), value("aProperty", "overriddenValue"),
                 new Class[]{DifferentConfiguration.class});
         checkAndStop(server, "overriddenValue");
     }

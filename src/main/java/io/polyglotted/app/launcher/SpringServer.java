@@ -20,7 +20,7 @@ import static io.polyglotted.app.resources.impl.DefaultResources.ResourceNotFoun
 
 @Slf4j
 @RequiredArgsConstructor
-public class SpringServer {
+public class SpringServer implements Server {
     private static final String Configuration_Class = "app.spring.MainConfiguration";
     private static final String Gaveti_Bean = "gaveti";
     private static final String Overrides_Bean = "overrides";
@@ -33,6 +33,7 @@ public class SpringServer {
     private AnnotationConfigApplicationContext applicationContext;
     private final CountDownLatch latch = new CountDownLatch(1);
 
+    @Override
     public void start() {
         applicationContext = new AnnotationConfigApplicationContext();
         applicationContext.getEnvironment().setActiveProfiles(profiles());
@@ -49,6 +50,7 @@ public class SpringServer {
         }).start();
     }
 
+    @Override
     public void stop() {
         applicationContext.close();
         latch.countDown();

@@ -5,7 +5,7 @@ ENV JAVA_VERSION 8u31
 ENV BUILD_VERSION b13
 
 # Upgrading system
-RUN yum -y upgrade
+# RUN yum -y upgrade
 RUN yum -y install wget
 
 # Downloading Java
@@ -22,7 +22,7 @@ ENV JAVA_HOME /usr/java/latest
 # TODO make centos/oracle jdk a base image
 
 RUN mkdir /app
-ADD *-binary.tar.gz /app/
+ADD ${project.artifactId}-${project.version}-binary.tar.gz /app/
 WORKDIR /app
-RUN ln -s $(ls) current
+RUN ln -s ${project.artifactId} current
 CMD ["/app/current/bin/appservice","start"]

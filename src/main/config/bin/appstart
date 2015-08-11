@@ -113,7 +113,7 @@ RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $GAV_OPTS $JAVA_OPTS -classpath \"$CLASSPATH
 #echo $RUNJAVA_APP
 
 if [ "$OPTYPE" = "-b" ]; then
-    eval "$RUNJAVA_APP > /dev/null 2>&1 &"
+    eval 'nohup bash -c "($RUNJAVA_APP > /app/current/logs/app.out) &> /app/current/logs/app.err" &'
 else
     eval $RUNJAVA_APP
 fi

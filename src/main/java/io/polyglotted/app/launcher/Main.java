@@ -13,16 +13,16 @@ public abstract class Main {
         main(ConfigFactory.systemProperties());
     }
 
-    public static SpringServer main(Config config) {
+    public static Server main(Config config) {
         return main(Gaveti.from(config));
     }
 
-    public static SpringServer main(Gaveti gaveti) {
+    public static Server main(Gaveti gaveti) {
         return main(gaveti, Overrides.empty());
     }
 
     @SneakyThrows
-    public static SpringServer main(Gaveti gaveti, Overrides overrides, Class<?>... configClasses) {
+    public static Server main(Gaveti gaveti, Overrides overrides, Class<?>... configClasses) {
         Class[] configurationClasses = (configClasses.length == 0) ? SpringServer.defaultConfigurationClasses() : configClasses;
         final SpringServer server = new SpringServer(gaveti, overrides, configurationClasses);
         Runtime.getRuntime().addShutdownHook(new ServerShutdown(server));
@@ -32,7 +32,7 @@ public abstract class Main {
 
     @RequiredArgsConstructor
     static class ServerShutdown extends Thread {
-        private final SpringServer serverApp;
+        private final Server serverApp;
 
         @Override
         public void run() {
