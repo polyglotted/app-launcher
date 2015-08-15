@@ -1,10 +1,25 @@
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
     <servers>
         <server>
             <id>sonatype-nexus-snapshots</id>
             <username>${CI_USERID}</username>
             <password>${CI_PASSWD}</password>
         </server>
+        <server>
+            <id>sonatype-nexus-staging</id>
+            <username>${CI_USERID}</username>
+            <password>${CI_PASSWD}</password>
+        </server>
     </servers>
+    <profiles>
+        <profile>
+            <id>gpg</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.passphrase>${GPG_PASSWD}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
 </settings>
