@@ -2,7 +2,7 @@ sudo: false
 language: java
 jdk:
 - oraclejdk8
-script: mvn -q deploy --settings .travis-settings.xml
+script: mvn deploy --settings .travis-settings.xml
 env:
   global:
   - secure: ZY3DMnVB735EVMwXCXsl5xVi8rljh2geVv+2NBbdamfGM5CKpJCpgnoer/jbdHLEZj9t30EdMiqXhA79k1tP02q9/4Lvcc8hVvq713KP5DkFkFYTHbXoa95lpp9lHkZdWgar7LXFyTt+L0SUx3LXNoytcq16+31NEHEe3exaE8o=
