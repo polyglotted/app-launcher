@@ -15,7 +15,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class DefaultConfigFactoryTest {
+public class DefaultConfigHolderTest {
 
     private static final String DEFAULT_STRING_PROPERTY = "stringProperty";
     private static final String DEFAULT_STRING_PROPERTY_VALUE = "string";
@@ -174,7 +174,7 @@ public class DefaultConfigFactoryTest {
                 "property1", "source2.value1",
                 "property2", "source2.value2"
         );
-        DefaultConfigFactory propertiesFactory = new DefaultConfigFactory(new MapValuesProvider(
+        DefaultConfigHolder propertiesFactory = new DefaultConfigHolder(new MapValuesProvider(
                 ImmutableMap.of(
                         "source", defaultSourceProperties,
                         "source2", alternativeSourceProperties
@@ -199,41 +199,41 @@ public class DefaultConfigFactoryTest {
 
     @Test(expectedExceptions = ConfigException.class, expectedExceptionsMessageRegExp = ".* is not an interface")
     public void configurationIsNotAnInterface() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNotInterface.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigNotInterface.class);
     }
 
     @Test(expectedExceptions = ConfigException.class, expectedExceptionsMessageRegExp = ".* is not public")
     public void configurationIsNotPublic() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNotPublic.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigNotPublic.class);
     }
 
     @Test(expectedExceptions = ConfigException.class,
             expectedExceptionsMessageRegExp = ".* must be annotated with @Config annotation")
     public void configurationHasNoAnnotation() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNoAnnotation.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigNoAnnotation.class);
     }
 
     @Test(expectedExceptions = ConfigException.class,
             expectedExceptionsMessageRegExp = "No properties are defined in @Config .*")
     public void configurationsAreNotDefined() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNoProperties.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigNoProperties.class);
     }
 
     @Test(expectedExceptions = ConfigException.class,
             expectedExceptionsMessageRegExp = "Missing property .* expected in configuration .*")
     public void configurationsAreMissing() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigMissingType.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigMissingType.class);
     }
 
     @Test(expectedExceptions = ConfigException.class,
             expectedExceptionsMessageRegExp = "Method .* annotated with @Property has unsupported return type. .*")
     public void configurationsAreInvalid() {
-        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigUnsupportedType.class);
+        new DefaultConfigHolder(mapConfigurationSourceProvider).properties(TestConfigUnsupportedType.class);
     }
 
     @Test
     public void successfulConfiguration() {
-        DefaultConfigFactory configurationFactory = new DefaultConfigFactory(mapConfigurationSourceProvider);
+        DefaultConfigHolder configurationFactory = new DefaultConfigHolder(mapConfigurationSourceProvider);
         TestConfigValid configuration = configurationFactory.properties(TestConfigValid.class);
 
         assertThat(configuration.defaultStringProperty(), is(equalTo(stringTestData.defaultPropertyValue)));

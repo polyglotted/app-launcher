@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-public class DefaultConfigFactory implements ConfigFactory {
+public class DefaultConfigHolder implements ConfigHolder {
 
     private final ValuesProvider sourceProvider;
 
