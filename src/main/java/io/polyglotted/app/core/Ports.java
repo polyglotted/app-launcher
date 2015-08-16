@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public abstract class Ports {
 
-    public static int empty() {
+    public static int random() {
         return allocate(Optional.<Integer>empty());
     }
 

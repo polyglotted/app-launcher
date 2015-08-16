@@ -10,6 +10,6 @@ public class PortsTest extends Ports {
 
     @Test
     public void testEmpty() {
-        assertThat(empty(), is(greaterThan(0)));
+        assertThat(random(), is(greaterThan(0)));
     }
 }
