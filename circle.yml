@@ -1,0 +1,9 @@
+machine:
+  java:
+    version:
+      oraclejdk8
+deployment:
+  nexus:
+    branch: master
+    commands:
+      - mvn --settings .ci-settings.xml deploy

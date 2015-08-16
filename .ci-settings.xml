@@ -2,13 +2,13 @@
     <servers>
         <server>
             <id>sonatype-nexus-snapshots</id>
-            <username>${CI_USERID}</username>
-            <password>${CI_PASSWD}</password>
+            <username>${NEXUS_USER}</username>
+            <password>${NEXUS_PASS}</password>
         </server>
         <server>
             <id>sonatype-nexus-staging</id>
-            <username>${CI_USERID}</username>
-            <password>${CI_PASSWD}</password>
+            <username>${NEXUS_USER}</username>
+            <password>${NEXUS_PASS}</password>
         </server>
     </servers>
     <profiles>
@@ -18,7 +18,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <gpg.passphrase>${GPG_PASSWD}</gpg.passphrase>
+                <gpg.passphrase>${GPG_PASS}</gpg.passphrase>
             </properties>
         </profile>
     </profiles>

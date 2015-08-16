@@ -4,4 +4,4 @@ App Launcher is the latest incarnation of the old webapp-launcher project and is
 
 ### Continuous Integration
 
-[ ![Codeship Status for polyglotted/app-launcher](https://codeship.com/projects/2643ae90-1fea-0133-9af6-62ccbc926973/status?branch=master)](https://codeship.com/projects/95631)
+[![Circle CI](https://circleci.com/gh/polyglotted/app-launcher.svg?style=svg)](https://circleci.com/gh/polyglotted/app-launcher)
