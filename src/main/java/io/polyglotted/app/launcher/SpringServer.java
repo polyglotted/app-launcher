@@ -41,13 +41,12 @@ public class SpringServer implements Server {
         overrideBeans();
         applicationContext.refresh();
         applicationContext.start();
-        new Thread(new Runnable() {
-            @Override
-            @SneakyThrows
-            public void run() {
-                latch.await();
-            }
-        }).start();
+        new Thread(this::awaitLatch).start();
+    }
+
+    @SneakyThrows
+    private void awaitLatch() {
+        latch.await();
     }
 
     @Override
@@ -59,8 +58,8 @@ public class SpringServer implements Server {
     private String[] profiles() {
         Set<String> activeProfiles = newHashSet(applicationContext.getEnvironment().getActiveProfiles());
         activeProfiles.add(gaveti.environment());
-        if (gaveti.instanceName().isSome()) {
-            activeProfiles.add(gaveti.instanceName().some());
+        if (gaveti.instanceName().isPresent()) {
+            activeProfiles.add(gaveti.instanceName().get());
         }
         try {
             Config config = new DefaultResources(gaveti).config("spring.properties");
@@ -71,7 +70,7 @@ public class SpringServer implements Server {
             log.info("spring.properties not found, no additional spring properties loaded");
         }
         log.info("Setting spring profiles {}", activeProfiles);
-        return activeProfiles.toArray(new String[0]);
+        return activeProfiles.toArray(new String[activeProfiles.size()]);
     }
 
     private void overrideBeans() {

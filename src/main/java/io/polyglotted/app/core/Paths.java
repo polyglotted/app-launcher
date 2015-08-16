@@ -1,92 +1,61 @@
 package io.polyglotted.app.core;
 
-import fj.F;
-import fj.data.Option;
-import fj.data.Stream;
 import lombok.RequiredArgsConstructor;
 
-import static fj.data.Stream.nil;
-import static fj.data.Stream.single;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 public class Paths {
     private final String environment;
-    private final Option<String> instance;
+    private final Optional<String> instance;
 
-    public Paths(String environment, Option<String> instance) {
+    public Paths(String environment, Optional<String> instance) {
         this.environment = environment;
         this.instance = instance;
     }
 
     public Stream<String> forName(String name) {
-        return instancePath(name)
-                .append(single(environmentPath(name)))
-                .append(single(name));
+        return Stream.concat(Stream.concat(instancePath(name), environmentPath(name)), Stream.of(name));
     }
 
     private Stream<String> instancePath(String name) {
-        if (instance.isSome()) {
+        if (instance.isPresent()) {
             FileName fileName = FileName.from(name);
-            return Stream.stream(slashInstancePath(fileName), dashInstancePath(fileName));
+            return Stream.of(slashInstancePath(fileName), dashInstancePath(fileName));
         } else {
-            return nil();
+            return Stream.empty();
         }
     }
 
     private String dashInstancePath(FileName fileName) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(environment);
-        builder.append("/");
-        builder.append(fileName.name);
-        builder.append("-");
-        builder.append(instance.some());
-        builder.append(fileName.extensionString());
-        return builder.toString();
+        return environment + "/" + fileName.name + "-" + instance.get() + fileName.extensionString();
     }
 
     private String slashInstancePath(FileName fileName) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(environment);
-        builder.append("/");
-        builder.append(instance.some());
-        builder.append("/");
-        builder.append(fileName.name);
-        builder.append(fileName.extensionString());
-        return builder.toString();
+        return environment + "/" + instance.get() + "/" + fileName.name + fileName.extensionString();
     }
 
-    private String environmentPath(String name) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(environment);
-        builder.append("/");
-        builder.append(name);
-        return builder.toString();
+    private Stream<String> environmentPath(String name) {
+        return Stream.of(environment + "/" + name);
     }
 
     @RequiredArgsConstructor
     private static class FileName {
         public final String name;
-        public final Option<String> extension;
+        public final Optional<String> extension;
 
         private String extensionString() {
-            return extension.map(prependWithDot()).orSome("");
-        }
-
-        private F<String, String> prependWithDot() {
-            return new F<String, String>() {
-                @Override public String f(String string) {
-                    return "." + string;
-                }
-            };
+            return extension.map(s -> "." + s).orElse("");
         }
 
         private static FileName from(String fullName) {
             int indexOfLastDot = fullName.lastIndexOf('.');
             if (indexOfLastDot == -1) {
-                return new FileName(fullName, Option.<String>none());
+                return new FileName(fullName, Optional.<String>empty());
             } else {
                 String name = fullName.substring(0, indexOfLastDot);
                 String extension = fullName.substring(indexOfLastDot + 1);
-                return new FileName(name, Option.some(extension));
+                return new FileName(name, Optional.of(extension));
             }
         }
     }

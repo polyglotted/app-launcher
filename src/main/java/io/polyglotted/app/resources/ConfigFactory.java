@@ -1,6 +1,6 @@
 package io.polyglotted.app.resources;
 
-public interface PropertiesFactory {
+public interface ConfigFactory {
 
     <T> T properties(Class<T> configurationInterface);
 

@@ -1,21 +1,21 @@
 package io.polyglotted.app.resources.impl;
 
 import com.google.common.collect.ImmutableMap;
-import fj.data.Option;
-import io.polyglotted.app.resources.DefaultValue;
-import io.polyglotted.app.resources.Properties;
+import io.polyglotted.app.resources.Config;
 import io.polyglotted.app.resources.Property;
-import org.junit.Before;
-import org.junit.Test;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class PropertiesFactoryTest {
+public class DefaultConfigFactoryTest {
 
     private static final String DEFAULT_STRING_PROPERTY = "stringProperty";
     private static final String DEFAULT_STRING_PROPERTY_VALUE = "string";
@@ -28,7 +28,7 @@ public class PropertiesFactoryTest {
     private static final String OPTIONAL_WITH_VALUE_STRING_PROPERTY_VALUE = "optionalWithValueStringPropertyValue";
 
     private static final String DEFAULT_INT_PROPERTY = "intProperty";
-    private static final String DEFAULT_INT_PROPERTY_VALUE = "1";
+    private static final int DEFAULT_INT_PROPERTY_VALUE = 1;
     private static final String DEFINED_INT_PROPERTY = "definedIntProperty";
     private static final int DEFINED_INT_PROPERTY_VALUE = 12;
     private static final String DEFINED_WITH_DEFAULT_INT_PROPERTY = "definedWithDefaultIntProperty";
@@ -38,7 +38,7 @@ public class PropertiesFactoryTest {
     private static final int OPTIONAL_WITH_VALUE_INT_PROPERTY_VALUE = 14;
 
     private static final String DEFAULT_LONG_PROPERTY = "longProperty";
-    private static final String DEFAULT_LONG_PROPERTY_VALUE = "4";
+    private static final long DEFAULT_LONG_PROPERTY_VALUE = 4L;
     private static final String DEFINED_LONG_PROPERTY = "definedLongProperty";
     private static final long DEFINED_LONG_PROPERTY_VALUE = 42L;
     private static final String DEFINED_WITH_DEFAULT_LONG_PROPERTY = "definedWithDefaultLongProperty";
@@ -48,7 +48,7 @@ public class PropertiesFactoryTest {
     private static final long OPTIONAL_WITH_VALUE_LONG_PROPERTY_VALUE = 44L;
 
     private static final String DEFAULT_BOOL_PROPERTY = "boolProperty";
-    private static final String DEFAULT_BOOL_PROPERTY_VALUE = "false";
+    private static final boolean DEFAULT_BOOL_PROPERTY_VALUE = false;
     private static final String DEFINED_BOOL_PROPERTY = "definedBoolProperty";
     private static final boolean DEFINED_BOOL_PROPERTY_VALUE = true;
     private static final String DEFINED_WITH_DEFAULT_BOOL_PROPERTY = "definedWithDefaultBoolProperty";
@@ -58,7 +58,7 @@ public class PropertiesFactoryTest {
     private static final boolean OPTIONAL_WITH_VALUE_BOOL_PROPERTY_VALUE = true;
 
     private static final String DEFAULT_DOUBLE_PROPERTY = "doubleProperty";
-    private static final String DEFAULT_DOUBLE_PROPERTY_VALUE = "1.2";
+    private static final double DEFAULT_DOUBLE_PROPERTY_VALUE = 1.2;
     private static final String DEFINED_DOUBLE_PROPERTY = "definedDoubleProperty";
     private static final double DEFINED_DOUBLE_PROPERTY_VALUE = 1.2;
     private static final String DEFINED_WITH_DEFAULT_DOUBLE_PROPERTY = "definedWithDefaultDoubleProperty";
@@ -77,7 +77,7 @@ public class PropertiesFactoryTest {
 
     private static class TestData<T> {
         String defaultProperty;
-        String defaultPropertyValue;
+        Object defaultPropertyValue;
         String definedProperty;
         T definedPropertyValue;
         String optionalProperty;
@@ -88,7 +88,7 @@ public class PropertiesFactoryTest {
         T definedWithDefaultPropertyValue;
     }
 
-    @Before
+    @BeforeTest
     public void setUp() throws Exception {
 
         stringTestData = new TestData<>();
@@ -174,7 +174,7 @@ public class PropertiesFactoryTest {
                 "property1", "source2.value1",
                 "property2", "source2.value2"
         );
-        DefaultPropertiesFactory propertiesFactory = new DefaultPropertiesFactory(new MapValuesProvider(
+        DefaultConfigFactory propertiesFactory = new DefaultConfigFactory(new MapValuesProvider(
                 ImmutableMap.of(
                         "source", defaultSourceProperties,
                         "source2", alternativeSourceProperties
@@ -183,15 +183,13 @@ public class PropertiesFactoryTest {
 
         AlternativeSourcesTestProperties defaultProperties =
                 propertiesFactory.properties(AlternativeSourcesTestProperties.class);
-        AlternativeSourcesTestProperties alternativePoperties =
-                propertiesFactory.properties(AlternativeSourcesTestProperties.class, "source2");
 
         assertThat(defaultProperties.property1(), is("value1"));
         assertThat(defaultProperties.property2(), is("value2"));
     }
 
-    @Properties(source = "source")
-    private interface AlternativeSourcesTestProperties {
+    @Config(source = "source")
+    public interface AlternativeSourcesTestProperties {
         @Property(name = "property1")
         String property1();
 
@@ -199,178 +197,205 @@ public class PropertiesFactoryTest {
         String property2();
     }
 
-    @Test(expected = ConfigException.class)
-    public void test_getConfiguraiton_noAnnotation_map() {
-        test_getConfiguraiton_noAnnotation(new DefaultPropertiesFactory(mapConfigurationSourceProvider));
+    @Test(expectedExceptions = ConfigException.class, expectedExceptionsMessageRegExp = ".* is not an interface")
+    public void configurationIsNotAnInterface() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNotInterface.class);
     }
 
-    private TestConfigNoAnnotation test_getConfiguraiton_noAnnotation(DefaultPropertiesFactory configurationFactory) {
-        return configurationFactory.properties(TestConfigNoAnnotation.class);
+    @Test(expectedExceptions = ConfigException.class, expectedExceptionsMessageRegExp = ".* is not public")
+    public void configurationIsNotPublic() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNotPublic.class);
     }
 
-    @Test(expected = ConfigException.class)
-    public void test_getConfiguraiton_noProperties_map() {
-        test_getConfiguraiton_noProperties(new DefaultPropertiesFactory(mapConfigurationSourceProvider));
+    @Test(expectedExceptions = ConfigException.class,
+            expectedExceptionsMessageRegExp = ".* must be annotated with @Config annotation")
+    public void configurationHasNoAnnotation() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNoAnnotation.class);
     }
 
-    private void test_getConfiguraiton_noProperties(DefaultPropertiesFactory configurationFactory) {
-        configurationFactory.properties(TestConfigNoProperties.class);
+    @Test(expectedExceptions = ConfigException.class,
+            expectedExceptionsMessageRegExp = "No properties are defined in @Config .*")
+    public void configurationsAreNotDefined() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigNoProperties.class);
     }
 
-    @Test(expected = ConfigException.class)
-    public void test_getConfiguraiton_unsupportedType_map() {
-        test_getConfiguraiton_unsupportedType(new DefaultPropertiesFactory(mapConfigurationSourceProvider));
+    @Test(expectedExceptions = ConfigException.class,
+            expectedExceptionsMessageRegExp = "Missing property .* expected in configuration .*")
+    public void configurationsAreMissing() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigMissingType.class);
     }
 
-    private void test_getConfiguraiton_unsupportedType(DefaultPropertiesFactory configurationFactory) {
-        configurationFactory.properties(TestConfigUnsupportedType.class);
+    @Test(expectedExceptions = ConfigException.class,
+            expectedExceptionsMessageRegExp = "Method .* annotated with @Property has unsupported return type. .*")
+    public void configurationsAreInvalid() {
+        new DefaultConfigFactory(mapConfigurationSourceProvider).properties(TestConfigUnsupportedType.class);
     }
 
     @Test
-    public void test_success_map() {
-        DefaultPropertiesFactory configurationFactory = new DefaultPropertiesFactory(mapConfigurationSourceProvider);
+    public void successfulConfiguration() {
+        DefaultConfigFactory configurationFactory = new DefaultConfigFactory(mapConfigurationSourceProvider);
         TestConfigValid configuration = configurationFactory.properties(TestConfigValid.class);
 
         assertThat(configuration.defaultStringProperty(), is(equalTo(stringTestData.defaultPropertyValue)));
         assertThat(configuration.definedStringProperty(), is(equalTo(stringTestData.definedPropertyValue)));
         assertThat(configuration.definedWithDefaultStringProperty(), is(equalTo(stringTestData.definedWithDefaultPropertyValue)));
-        assertThat(configuration.optionalStringProperty(), is(equalTo(Option.<String>none())));
-        Option<String> some = Option.some(stringTestData.optionalWithValuePropertyValue);
-        Option<String> actual = configuration.optionalWithValueStringProperty();
-        assertThat(actual, is(equalTo(some)));
+        assertThat(configuration.optionalStringProperty(), is(equalTo(Optional.<String>empty())));
+        Optional<String> of = Optional.of(stringTestData.optionalWithValuePropertyValue);
+        Optional<String> actual = configuration.optionalWithValueStringProperty();
+        assertThat(actual, is(equalTo(of)));
 
-        assertThat(configuration.defaultIntProperty(), is(equalTo(Integer.parseInt(intTestData.defaultPropertyValue))));
+        assertThat(configuration.defaultIntProperty(), is(equalTo(intTestData.defaultPropertyValue)));
         assertThat(configuration.definedIntProperty(), is(equalTo(intTestData.definedPropertyValue)));
         assertThat(configuration.definedWithDefaultIntProperty(), is(equalTo(intTestData.definedWithDefaultPropertyValue)));
-        assertThat(configuration.optionalIntProperty(), is(equalTo(Option.<Integer>none())));
-        assertThat(configuration.optionalWithValueIntProperty(), is(equalTo(Option.some(intTestData.optionalWithValuePropertyValue))));
+        assertThat(configuration.optionalIntProperty(), is(equalTo(Optional.<Integer>empty())));
+        assertThat(configuration.optionalWithValueIntProperty(), is(equalTo(Optional.of(intTestData.optionalWithValuePropertyValue))));
 
-        assertThat(configuration.defaultLongProperty(), is(equalTo(Long.parseLong(longTestData.defaultPropertyValue))));
+        assertThat(configuration.defaultLongProperty(), is(equalTo(longTestData.defaultPropertyValue)));
         assertThat(configuration.definedLongProperty(), is(equalTo(longTestData.definedPropertyValue)));
         assertThat(configuration.definedWithDefaultLongProperty(), is(equalTo(longTestData.definedWithDefaultPropertyValue)));
-        assertThat(configuration.optionalLongProperty(), is(equalTo(Option.<Long>none())));
-        assertThat(configuration.optionalWithValueLongProperty(), is(equalTo(Option.some(longTestData.optionalWithValuePropertyValue))));
+        assertThat(configuration.optionalLongProperty(), is(equalTo(Optional.<Long>empty())));
+        assertThat(configuration.optionalWithValueLongProperty(), is(equalTo(Optional.of(longTestData.optionalWithValuePropertyValue))));
 
-        assertThat(configuration.defaultBoolProperty(), is(equalTo(Boolean.parseBoolean(boolTestData.defaultPropertyValue))));
+        assertThat(configuration.defaultBoolProperty(), is(equalTo(boolTestData.defaultPropertyValue)));
         assertThat(configuration.definedBoolProperty(), is(equalTo(boolTestData.definedPropertyValue)));
         assertThat(configuration.definedWithDefaultBoolProperty(), is(equalTo(boolTestData.definedWithDefaultPropertyValue)));
-        assertThat(configuration.optionalBoolProperty(), is(equalTo(Option.<Boolean>none())));
-        assertThat(configuration.optionalWithValueBoolProperty(), is(equalTo(Option.some(boolTestData.optionalWithValuePropertyValue))));
+        assertThat(configuration.optionalBoolProperty(), is(equalTo(Optional.<Boolean>empty())));
+        assertThat(configuration.optionalWithValueBoolProperty(), is(equalTo(Optional.of(boolTestData.optionalWithValuePropertyValue))));
 
-        assertThat(configuration.defaultDoubleProperty(), is(equalTo(Double.parseDouble(doubleTestData.defaultPropertyValue))));
+        assertThat(configuration.defaultDoubleProperty(), is(equalTo(doubleTestData.defaultPropertyValue)));
         assertThat(configuration.definedDoubleProperty(), is(equalTo(doubleTestData.definedPropertyValue)));
         assertThat(configuration.definedWithDefaultDoubleProperty(), is(equalTo(doubleTestData.definedWithDefaultPropertyValue)));
-        assertThat(configuration.optionalDoubleProperty(), is(equalTo(Option.<Double>none())));
-        assertThat(configuration.optionalWithValueDoubleProperty(), is(equalTo(Option.some(doubleTestData.optionalWithValuePropertyValue))));
+        assertThat(configuration.optionalDoubleProperty(), is(equalTo(Optional.<Double>empty())));
+        assertThat(configuration.optionalWithValueDoubleProperty(), is(equalTo(Optional.of(doubleTestData.optionalWithValuePropertyValue))));
     }
 
-    static class TestConfigNoAnnotation {
+    @Config(source = "source")
+    public static class TestConfigNotInterface {
     }
 
-    @Properties(source = "source")
-    interface TestConfigNoProperties {
-
-        @Property(name = "stringProperty")
-        String stringProperty();
-
-        @Property(name = "intProperty")
-        @DefaultValue("1")
-        int integerProperty();
+    @Config(source = "source")
+    interface TestConfigNotPublic {
     }
 
-    @Properties(source = "source")
-    interface TestConfigUnsupportedType {
+    public interface TestConfigNoAnnotation {
+    }
+
+    @Config(source = "source")
+    public interface TestConfigNoProperties {
+    }
+
+    @Config(source = "source")
+    @SuppressWarnings("unused")
+    public interface TestConfigMissingType {
 
         @Property(name = "stringProperty")
         Double stringProperty();
     }
 
-    @Properties(source = "source")
-    interface TestConfigValid {
+    @Config(source = "source")
+    @SuppressWarnings("unused")
+    public interface TestConfigUnsupportedType {
+
+        @Property(name = "dateProperty")
+        Date dateProperty();
+    }
+
+    @Config(source = "source")
+    public interface TestConfigValid {
 
         @Property(name = DEFINED_STRING_PROPERTY)
         String definedStringProperty();
 
         @Property(name = DEFINED_WITH_DEFAULT_STRING_PROPERTY)
-        @DefaultValue("definedWithDefaultStringProperty default value")
-        String definedWithDefaultStringProperty();
+        default String definedWithDefaultStringProperty() {
+            return "definedWithDefaultStringProperty default value";
+        }
 
         @Property(name = DEFAULT_STRING_PROPERTY)
-        @DefaultValue(DEFAULT_STRING_PROPERTY_VALUE)
-        String defaultStringProperty();
+        default String defaultStringProperty() {
+            return DEFAULT_STRING_PROPERTY_VALUE;
+        }
 
         @Property(name = OPTIONAL_STRING_PROPERTY, optional = true)
-        Option<String> optionalStringProperty();
+        Optional<String> optionalStringProperty();
 
         @Property(name = OPTIONAL_WITH_VALUE_STRING_PROPERTY, optional = true)
-        Option<String> optionalWithValueStringProperty();
+        Optional<String> optionalWithValueStringProperty();
 
         @Property(name = DEFAULT_INT_PROPERTY)
-        @DefaultValue(DEFAULT_INT_PROPERTY_VALUE)
-        int defaultIntProperty();
+        default int defaultIntProperty() {
+            return DEFAULT_INT_PROPERTY_VALUE;
+        }
 
         @Property(name = DEFINED_INT_PROPERTY)
         int definedIntProperty();
 
         @Property(name = DEFINED_WITH_DEFAULT_INT_PROPERTY)
-        @DefaultValue("131")
-        int definedWithDefaultIntProperty();
+        default int definedWithDefaultIntProperty() {
+            return 131;
+        }
 
         @Property(name = OPTIONAL_INT_PROPERTY, optional = true)
-        Option<Integer> optionalIntProperty();
+        Optional<Integer> optionalIntProperty();
 
         @Property(name = OPTIONAL_WITH_VALUE_INT_PROPERTY, optional = true)
-        Option<Integer> optionalWithValueIntProperty();
+        Optional<Integer> optionalWithValueIntProperty();
 
         @Property(name = DEFAULT_LONG_PROPERTY)
-        @DefaultValue(DEFAULT_LONG_PROPERTY_VALUE)
-        long defaultLongProperty();
+        default long defaultLongProperty() {
+            return DEFAULT_LONG_PROPERTY_VALUE;
+        }
 
         @Property(name = DEFINED_LONG_PROPERTY)
         long definedLongProperty();
 
         @Property(name = DEFINED_WITH_DEFAULT_LONG_PROPERTY)
-        @DefaultValue("431")
-        long definedWithDefaultLongProperty();
+        default long definedWithDefaultLongProperty() {
+            return 431L;
+        }
 
         @Property(name = OPTIONAL_LONG_PROPERTY, optional = true)
-        Option<Long> optionalLongProperty();
+        Optional<Long> optionalLongProperty();
 
         @Property(name = OPTIONAL_WITH_VALUE_LONG_PROPERTY, optional = true)
-        Option<Long> optionalWithValueLongProperty();
+        Optional<Long> optionalWithValueLongProperty();
 
         @Property(name = DEFAULT_BOOL_PROPERTY)
-        @DefaultValue(DEFAULT_BOOL_PROPERTY_VALUE)
-        boolean defaultBoolProperty();
+        default boolean defaultBoolProperty() {
+            return DEFAULT_BOOL_PROPERTY_VALUE;
+        }
 
         @Property(name = DEFINED_BOOL_PROPERTY)
         boolean definedBoolProperty();
 
         @Property(name = DEFINED_WITH_DEFAULT_BOOL_PROPERTY)
-        @DefaultValue("true")
-        boolean definedWithDefaultBoolProperty();
+        default boolean definedWithDefaultBoolProperty() {
+            return true;
+        }
 
         @Property(name = OPTIONAL_BOOL_PROPERTY, optional = true)
-        Option<Boolean> optionalBoolProperty();
+        Optional<Boolean> optionalBoolProperty();
 
         @Property(name = OPTIONAL_WITH_VALUE_BOOL_PROPERTY, optional = true)
-        Option<Boolean> optionalWithValueBoolProperty();
+        Optional<Boolean> optionalWithValueBoolProperty();
 
         @Property(name = DEFAULT_DOUBLE_PROPERTY)
-        @DefaultValue(DEFAULT_DOUBLE_PROPERTY_VALUE)
-        double defaultDoubleProperty();
+        default double defaultDoubleProperty() {
+            return DEFAULT_DOUBLE_PROPERTY_VALUE;
+        }
 
         @Property(name = DEFINED_DOUBLE_PROPERTY)
         double definedDoubleProperty();
 
         @Property(name = DEFINED_WITH_DEFAULT_DOUBLE_PROPERTY)
-        @DefaultValue("1.2")
-        double definedWithDefaultDoubleProperty();
+        default double definedWithDefaultDoubleProperty() {
+            return 1.2;
+        }
 
         @Property(name = OPTIONAL_DOUBLE_PROPERTY, optional = true)
-        Option<Double> optionalDoubleProperty();
+        Optional<Double> optionalDoubleProperty();
 
         @Property(name = OPTIONAL_WITH_VALUE_DOUBLE_PROPERTY, optional = true)
-        Option<Double> optionalWithValueDoubleProperty();
+        Optional<Double> optionalWithValueDoubleProperty();
     }
 }

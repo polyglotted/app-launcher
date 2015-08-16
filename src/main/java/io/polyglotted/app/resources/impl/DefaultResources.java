@@ -4,9 +4,6 @@ import com.google.common.io.ByteStreams;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigParseOptions;
-import fj.P1;
-import fj.Show;
-import fj.data.Stream;
 import io.polyglotted.app.core.Gaveti;
 import io.polyglotted.app.core.Paths;
 import io.polyglotted.app.resources.Resources;
@@ -14,8 +11,11 @@ import io.polyglotted.app.resources.Resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Stream;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.typesafe.config.ConfigSyntax.CONF;
 
 public class DefaultResources implements Resources {
@@ -33,19 +33,8 @@ public class DefaultResources implements Resources {
     @Override
     public InputStream inputStream(String name) {
         final Stream<String> paths = this.paths.forName(name);
-        return paths.find(Classpath.resourceExists())
-                .map(Classpath.toResourceInputStream())
-                .orSome(throwResourceNotFound(name, paths));
-    }
-
-    private P1<InputStream> throwResourceNotFound(final String name, final Stream<String> paths) {
-        return new P1<InputStream>() {
-            @Override
-            public InputStream _1() {
-                throw new ResourceNotFoundException("Resource named \"" + name + "\" not found. " +
-                        "Paths tried: " + Show.streamShow(Show.stringShow).showS(paths));
-            }
-        };
+        return paths.filter(DefaultResources::resourceExists).map(DefaultResources::resourceInputStream).findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Resource named \"" + name + "\" not found. "));
     }
 
     @Override
@@ -99,4 +88,19 @@ public class DefaultResources implements Resources {
             super(s);
         }
     }
+
+    private static boolean resourceExists(String name) {
+        return resourceStreamOption(name).isPresent();
+    }
+
+    private static InputStream resourceInputStream(String name) {
+        Optional<InputStream> result = resourceStreamOption(name);
+        checkState(result.isPresent(), "No resource found for name: " + name);
+        return result.get();
+    }
+
+    private static Optional<InputStream> resourceStreamOption(String name) {
+        return Optional.ofNullable(DefaultResources.class.getResourceAsStream("/" + name));
+    }
 }
+

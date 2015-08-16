@@ -1,8 +1,8 @@
 package io.polyglotted.app.resources.impl;
 
-import io.polyglotted.app.resources.PropertiesFactory;
+import io.polyglotted.app.resources.ConfigFactory;
 
-public class NullPropertiesFactory implements PropertiesFactory {
+public class NullConfigFactory implements ConfigFactory {
     @Override
     public <T> T properties(Class<T> configurationInterface) {
         return null;

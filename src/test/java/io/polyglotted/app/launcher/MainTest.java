@@ -1,11 +1,14 @@
 package io.polyglotted.app.launcher;
 
-import org.junit.Test;
 import io.polyglotted.app.core.Gaveti;
+import org.testng.annotations.Test;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
 import static io.polyglotted.app.core.Overrides.value;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class MainTest extends Main {
 

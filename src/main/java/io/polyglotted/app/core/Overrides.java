@@ -1,31 +1,31 @@
 package io.polyglotted.app.core;
 
 import com.google.common.collect.ImmutableMap;
-import fj.data.Option;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class Overrides {
     private final Map<String, Object> map;
 
-    public Option<String> string(String key) {
-        return Option.fromNull((String)map.get(key));
+    public Optional<String> string(String key) {
+        return Optional.ofNullable((String) map.get(key));
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Option<T> object(String key) {
-        return Option.fromNull((T)map.get(key));
+    public <T> Optional<T> object(String key) {
+        return Optional.ofNullable((T) map.get(key));
     }
 
-    public Option<Integer> integer(String key) {
-        return Option.fromNull((Integer)map.get(key));
+    public Optional<Integer> integer(String key) {
+        return Optional.ofNullable((Integer) map.get(key));
     }
 
-    public Option<Long> longValue(String key) {
-        return Option.fromNull((Long)map.get(key));
+    public Optional<Long> longValue(String key) {
+        return Optional.ofNullable((Long)map.get(key));
     }
 
     public static Overrides fromMap(Map<String, Object> map) {

@@ -1,15 +1,15 @@
-package io.polyglotted.app.resources;
+package io.polyglotted.app.resources.impl;
 
 import com.typesafe.config.Config;
-import fj.data.Option;
-import org.junit.Test;
+import com.typesafe.config.ConfigException;
 import io.polyglotted.app.core.Gaveti;
-import io.polyglotted.app.resources.impl.DefaultResources;
+import org.testng.annotations.Test;
 
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class DefaultResourcesTest {
 
@@ -65,7 +65,7 @@ public class DefaultResourcesTest {
         assertThat(localLoader().string("ble"), is("ble"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expectedExceptions = IllegalStateException.class)
     public void non_existent_resource() {
         instanceLoader().config("bla");
     }
@@ -109,7 +109,7 @@ public class DefaultResourcesTest {
         assertThat(properties.getProperty("usernameProperty"), is("${user.name}"));
     }
 
-    @Test(expected = Exception.class) //should fail as there is no instance.name set
+    @Test(expectedExceptions = ConfigException.class)
     public void gavei_substitutes_withoutInstance_fail() {
         Config config = localLoader().config("substitute.properties");
         assertThat(config.getString("propertyWithSubstitute"), is("propertyWithSubstitute.polyglotted.resources.0.0.1.local.anInstance"));
@@ -123,7 +123,7 @@ public class DefaultResourcesTest {
 
     private DefaultResources instanceLoader() {
         return new DefaultResources(new Gaveti("polyglotted", "resources", "0.0.1", "local",
-                Option.<String>none(), Option.some("anInstance")));
+                Optional.<String>empty(), Optional.of("anInstance")));
     }
 
     private DefaultResources localLoader() {

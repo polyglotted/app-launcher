@@ -1,20 +1,23 @@
 package io.polyglotted.app.resources.impl;
 
 import com.google.common.collect.ImmutableMap;
-import fj.data.Option;
 import io.polyglotted.app.resources.*;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
-public class DefaultPropertiesFactory implements PropertiesFactory {
+public class DefaultConfigFactory implements ConfigFactory {
 
     private final ValuesProvider sourceProvider;
 
-    private final Map<Class<?>, PropertyType<?>> propertyTypes = ImmutableMap.<Class<?>, PropertyType<?>>builder()
+    private static final InvocationHandler MethodProxyInvocationHandler = methodProxyInvocationHandler();
+    private static final Map<Class<?>, PropertyType<?>> DefaultPropertyTypes = ImmutableMap.<Class<?>, PropertyType<?>>builder()
             .put(int.class, new IntegerPropertyType())
             .put(Integer.class, new IntegerPropertyType())
             .put(long.class, new LongPropertyType())
@@ -28,28 +31,29 @@ public class DefaultPropertiesFactory implements PropertiesFactory {
 
     @Override
     public <T> T properties(Class<T> configurationInterface) {
-        return properties(configurationInterface, Option.<String>none());
+        return properties(configurationInterface, Optional.<String>empty());
     }
 
     @Override
     public <T> T properties(Class<T> configurationInterface, String source) {
-        return properties(configurationInterface, Option.some(source));
+        return properties(configurationInterface, Optional.of(source));
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T properties(Class<T> configurationInterface, Option<String> source) {
+    private <T> T properties(Class<T> configurationInterface, Optional<String> source) {
         try {
             if (!configurationInterface.isInterface()) {
-                throw new ConfigException(configurationInterface.getName() + " is not an interface.");
+                throw new ConfigException(configurationInterface.getName() + " is not an interface");
+            } else if (!Modifier.isPublic(configurationInterface.getModifiers())) {
+                throw new ConfigException(configurationInterface.getName() + " is not public");
+            } else if (!configurationInterface.isAnnotationPresent(Config.class)) {
+                throw new ConfigException(configurationInterface.getName() + " must be annotated with @Config annotation");
             }
-            if (!configurationInterface.isAnnotationPresent(Properties.class)) {
-                throw new ConfigException("Configuration class must be annotated with " + Properties.class.getName());
-            }
+
+            Class<?> proxyClass = Proxy.getProxyClass(configurationInterface.getClassLoader(), configurationInterface);
             InvocationHandlerImpl invocationHandler = buildInvocationHandler(configurationInterface, source);
-
-            Class<?> proxyClass = Proxy.getProxyClass(configurationInterface.getClassLoader(), new Class[]{configurationInterface});
-
             return (T) proxyClass.getConstructor(InvocationHandler.class).newInstance(invocationHandler);
+
         } catch (ConfigException e) {
             throw e;
         } catch (Exception e) {
@@ -57,50 +61,50 @@ public class DefaultPropertiesFactory implements PropertiesFactory {
         }
     }
 
-    private <T> InvocationHandlerImpl buildInvocationHandler(Class<T> configurationInterface, Option<String> source) {
-        String sourceName = source.isSome() ? source.some() : configurationInterface.getAnnotation(Properties.class).source();
+    private <T> InvocationHandlerImpl buildInvocationHandler(Class<T> configurationInterface, Optional<String> source) {
+        String sourceName = source.isPresent() ? source.get() :
+                configurationInterface.getAnnotation(Config.class).source();
         Values values = sourceProvider.values(sourceName);
 
         Map<String, Object> result = new HashMap<>();
         Method[] declaredMethods = configurationInterface.getDeclaredMethods();
+        Object classProxy = Proxy.newProxyInstance(configurationInterface.getClassLoader(),
+                new Class[]{configurationInterface}, MethodProxyInvocationHandler);
+
         for (Method method : declaredMethods) {
-            if (!isPropertyMethod(method)) continue;
+            if (!method.isAnnotationPresent(Property.class)) continue;
 
             validateParameterTypes(method);
-
-            Object value = resolvePropertyValue(values, method);
-
+            Object value = resolvePropertyValue(values, method, classProxy);
             result.put(method.getName(), value);
         }
-        if (result.isEmpty()) {
-            throw new ConfigException("No configuration is defined in configuration interface " + configurationInterface.getName());
-        }
 
+        if (result.isEmpty()) {
+            throw new ConfigException("No properties are defined in @Config "
+                    + configurationInterface.getName());
+        }
         return new InvocationHandlerImpl(result);
     }
 
-    private Object resolvePropertyValue(Values source, Method method) {
+    @SneakyThrows(Exception.class)
+    private Object resolvePropertyValue(Values source, Method method, Object classProxy) {
         Property propertyAnnotation = method.getAnnotation(Property.class);
         PropertyType propertyType = resolvePropertyType(method, propertyAnnotation.optional());
         String propertyName = propertyAnnotation.name();
-        Option value = Option.none();
+
+        Optional value = Optional.empty();
         if (source.hasValue(propertyName)) {
-            value = Option.some(propertyType.getValue(source, propertyName));
-        } else if (isDefaultValueDefined(method)) {
-            value = Option.some(propertyType.getDefaultValue(method.getAnnotation(DefaultValue.class).value()));
-        }
-        if (value.isNone() && !propertyAnnotation.optional()) {
-            throw new ConfigException("Missing property " + propertyName + " expected in configuration " + method.getDeclaringClass().getName() + ".");
-        }
-        return propertyAnnotation.optional() ? value : value.some();
-    }
+            value = Optional.of(propertyType.getValue(source, propertyName));
 
-    private boolean isDefaultValueDefined(Method method) {
-        return method.isAnnotationPresent(DefaultValue.class);
-    }
+        } else if (method.isDefault()) {
+            value = Optional.of(method.invoke(classProxy));
+        }
 
-    private boolean isPropertyMethod(Method method) {
-        return method.isAnnotationPresent(Property.class);
+        if (!value.isPresent() && !propertyAnnotation.optional()) {
+            throw new ConfigException("Missing property " + propertyName +
+                    " expected in configuration " + method.getDeclaringClass().getName() + ".");
+        }
+        return propertyAnnotation.optional() ? value : value.get();
     }
 
     private PropertyType resolvePropertyType(Method method, boolean optional) {
@@ -108,18 +112,21 @@ public class DefaultPropertiesFactory implements PropertiesFactory {
         if (optional) {
             returnType = resolveOptionalPropertyType(method, returnType);
         }
-        PropertyType propertyType = propertyTypes.get(returnType);
+
+        PropertyType propertyType = DefaultPropertyTypes.get(returnType);
         if (propertyType == null) {
             throw new ConfigException("Method " + method.getName() + " of interface " + method.getDeclaringClass().getName() +
-                    " annotated with " + Property.class.getName() + " has unsupported return type. Following types are supported: " + propertyTypes.keySet());
+                    " annotated with @Property has unsupported return type. Only the following types are supported: "
+                    + DefaultPropertyTypes.keySet());
         }
         return propertyType;
     }
 
     private Class<?> resolveOptionalPropertyType(Method method, Class<?> returnType) {
-        if (!returnType.isAssignableFrom(Option.class)) {
-            throw new ConfigException("Method " + method.getName() + " of interface " + method.getDeclaringClass().getName() +
-                    " annotated with " + Property.class.getName() + " with optional = true but has a return type different from fj.data.Option.");
+        if (!returnType.isAssignableFrom(Optional.class)) {
+            throw new ConfigException("Method " + method.getName() + " of interface "
+                    + method.getDeclaringClass().getName() + " annotated with " + Property.class.getName()
+                    + " with Optionalal = true but has a return type different from fj.data.Optional.");
         }
         Type returnTypeGeneric = method.getGenericReturnType();
         Type[] actualTypeArguments = ((ParameterizedType) returnTypeGeneric).getActualTypeArguments();
@@ -130,8 +137,33 @@ public class DefaultPropertiesFactory implements PropertiesFactory {
     private void validateParameterTypes(Method method) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes != null && parameterTypes.length > 0) {
-            throw new ConfigException("Property method declaration has parameters: " + method.getName() + " in configuration interface " + method.getDeclaringClass());
+            throw new ConfigException("Property method declaration has parameters: " + method.getName()
+                    + " in configuration interface " + method.getDeclaringClass());
         }
+    }
+
+    private static InvocationHandler methodProxyInvocationHandler() {
+        return (proxy, method, args) -> {
+            if (method.isDefault()) {
+                final Class<?> declaringClass = method.getDeclaringClass();
+                final MethodHandles.Lookup lookup = MethodHandles.publicLookup()
+                        .in(declaringClass);
+
+                final Field f = MethodHandles.Lookup.class.getDeclaredField("allowedModes");
+                final int modifiers = f.getModifiers();
+                if (Modifier.isFinal(modifiers)) { // should be done a single time
+                    final Field modifiersField = Field.class.getDeclaredField("modifiers");
+                    modifiersField.setAccessible(true);
+                    modifiersField.setInt(f, modifiers & ~Modifier.FINAL);
+                    f.setAccessible(true);
+                    f.set(lookup, MethodHandles.Lookup.PRIVATE);
+                }
+
+                return lookup.unreflectSpecial(method, declaringClass)
+                        .bindTo(proxy).invokeWithArguments(args);
+            }
+            return null;
+        };
     }
 
     private interface PropertyType<T> {

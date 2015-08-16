@@ -16,7 +16,7 @@ public class Starter {
     public void start() {
         started = true;
         artifactId = gaveti.artifactId();
-        aProperty = overrides.string("aProperty").orSome("");
+        aProperty = overrides.string("aProperty").orElse("");
     }
 
     public void stop() {
