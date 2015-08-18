@@ -3,7 +3,6 @@ package io.polyglotted.applauncher.settings;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import com.typesafe.config.ConfigValue;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
@@ -13,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class DefaultSettingsHolder implements SettingsHolder {
@@ -38,6 +36,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
             .build();
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T proxy(Class<T> configurationInterface) {
         try {
             if (!configurationInterface.isInterface()) {
@@ -202,17 +201,11 @@ public class DefaultSettingsHolder implements SettingsHolder {
 
     private interface PropertyType<T> {
         T getValue(Config source, String name);
-
-        T getDefaultValue(String value);
     }
 
     private static class StringPropertyType implements PropertyType<String> {
         public String getValue(Config source, String property) {
             return source.getString(property);
-        }
-
-        public String getDefaultValue(String defaultValue) {
-            return defaultValue;
         }
     }
 
@@ -220,19 +213,11 @@ public class DefaultSettingsHolder implements SettingsHolder {
         public Integer getValue(Config source, String property) {
             return source.getInt(property);
         }
-
-        public Integer getDefaultValue(String defaultValue) {
-            return Integer.parseInt(defaultValue);
-        }
     }
 
     private static class BooleanPropertyType implements PropertyType<Boolean> {
         public Boolean getValue(Config source, String property) {
             return source.getBoolean(property);
-        }
-
-        public Boolean getDefaultValue(String defaultValue) {
-            return Boolean.parseBoolean(defaultValue);
         }
     }
 
@@ -240,19 +225,11 @@ public class DefaultSettingsHolder implements SettingsHolder {
         public Long getValue(Config source, String property) {
             return source.getLong(property);
         }
-
-        public Long getDefaultValue(String defaultValue) {
-            return Long.parseLong(defaultValue);
-        }
     }
 
     private static class DoublePropertyType implements PropertyType<Double> {
         public Double getValue(Config source, String property) {
             return source.getDouble(property);
-        }
-
-        public Double getDefaultValue(String defaultValue) {
-            return Double.parseDouble(defaultValue);
         }
     }
 

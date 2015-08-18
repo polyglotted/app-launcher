@@ -4,4 +4,4 @@ App Launcher is the latest incarnation of the old webapp-launcher project and is
 
 ### Continuous Integration
 
-[![Circle CI](https://circleci.com/gh/polyglotted/app-launcher.svg?style=svg)](https://circleci.com/gh/polyglotted/app-launcher)
+[![Circle CI](https://circleci.com/gh/polyglotted/app-launcher.svg?style=shield)](https://circleci.com/gh/polyglotted/app-launcher)
