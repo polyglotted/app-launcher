@@ -8,42 +8,41 @@
     <fileSets>
         <fileSet>
             <directory>${project.basedir}</directory>
-            <outputDirectory>/</outputDirectory>
             <includes>
                 <include>README*</include>
             </includes>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/config/bin</directory>
-            <outputDirectory>/bin</outputDirectory>
+            <outputDirectory>bin</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/config/etc</directory>
-            <outputDirectory>/etc</outputDirectory>
+            <outputDirectory>etc</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/config/launcher</directory>
-            <outputDirectory>/launcher</outputDirectory>
+            <outputDirectory>launcher</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/config/templates</directory>
-            <outputDirectory>/templates</outputDirectory>
+            <outputDirectory>templates</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <filtered>false</filtered>
         </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/main/config/docker</directory>
-            <outputDirectory>/docker</outputDirectory>
+            <outputDirectory>docker</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <filtered>false</filtered>
