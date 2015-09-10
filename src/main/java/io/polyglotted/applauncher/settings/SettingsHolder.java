@@ -1,8 +1,12 @@
 package io.polyglotted.applauncher.settings;
 
+import com.typesafe.config.Config;
+
 import java.util.Properties;
 
 public interface SettingsHolder {
+
+    Config config();
 
     <T> T proxy(Class<T> configurationInterface);
 

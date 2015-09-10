@@ -3,8 +3,10 @@ package io.polyglotted.applauncher.settings;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.experimental.Accessors;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
@@ -13,9 +15,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
+@Accessors(fluent = true)
 @RequiredArgsConstructor
 public class DefaultSettingsHolder implements SettingsHolder {
 
+    @Getter
     private final Config config;
 
     public DefaultSettingsHolder() {
@@ -63,7 +67,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
         final Properties props = new Properties();
         config.entrySet().parallelStream().filter(entry -> entry.getKey().startsWith(prefix)).forEach(entry -> {
             String key = includePrefix ? entry.getKey() : entry.getKey().replace(prefix + ".", "");
-            props.put(key, entry.getValue().unwrapped());
+            props.put(key, String.valueOf(entry.getValue().unwrapped()));
         });
         return props;
     }
