@@ -110,7 +110,7 @@ setclasspath
 setjvmargs
 
 RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $GAV_OPTS $JAVA_OPTS -classpath \"$CLASSPATH\" $MAIN_CLASS_AND_ARGS"
-#echo $RUNJAVA_APP
+echo $RUNJAVA_APP
 
 if [ "$OPTYPE" = "-b" ]; then
     eval 'nohup bash -c "($RUNJAVA_APP > /app/current/logs/app.out) &> /app/current/logs/app.err" &'
