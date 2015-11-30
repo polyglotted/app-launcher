@@ -3,7 +3,13 @@ machine:
     version:
       oraclejdk8
 deployment:
-  nexus:
+  snapshot:
     branch: master
     commands:
-      - mvn --settings .ci-settings.xml deploy
+      - mvn --settings .ci-settings.xml -U deploy
+  release:
+    tag: /release-.*/
+    commands:
+      - git config user.email "circleci@polyglotted.io"
+      - git config user.name "CircleCI"
+      - mvn -DskipTests --settings .ci-settings.xml --batch-mode release:prepare release:perform
