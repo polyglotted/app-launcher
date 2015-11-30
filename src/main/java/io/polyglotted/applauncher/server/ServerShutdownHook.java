@@ -13,5 +13,4 @@ public class ServerShutdownHook extends Thread {
         log.info("Shutting down server");
         server.stop();
     }
-
 }
