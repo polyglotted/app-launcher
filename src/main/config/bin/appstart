@@ -71,7 +71,7 @@ setjavaruntime() {
 
 # Set classpath
 setclasspath() {
-    CLASSPATH="$PRG_HOME"/lib/properties:`ls -d "$PRG_HOME"/lib/* | awk '{a[NR+1]=$1}NR>1{printf a[NR]":"}END{print $1}'`
+    CLASSPATH="$CONFIG_PATH":`ls -d "$PRG_HOME"/lib/* | awk '{a[NR+1]=$1}NR>1{printf a[NR]":"}END{print $1}'`
 
     if $cygwin; then
       CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
@@ -81,17 +81,47 @@ setclasspath() {
 # Get all the args
 setjvmargs() {
     VM_OPTS=
-    if [ -r "$PRG_HOME"/etc/vmargs.file ]; then
-        VM_OPTS=`awk '{a[NR+1]=$1}NR>1{printf a[NR]" "}END{print $1}' "$PRG_HOME"/etc/vmargs.file`
+    if [ -r "$VMOPTS_FILE" ]; then
+        echo loading vmargs from "$VMOPTS_FILE"
+        VM_OPTS=`awk '{a[NR+1]=$1}NR>1{printf a[NR]" "}END{print $1}' "$VMOPTS_FILE"`
+    else
+        echo no vmargs.file found at "$VMOPTS_FILE"
     fi
-    GAV_OPTS="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=local -Dmain.launch.strategy=${launch.strategy}"
+
+    GAV_OPTS="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=$ENVIRONMENT -Dinstance=$INSTANCE_ID"
+    GAV_OPTS=$GAV_OPTS" -Dapp.dataDir=\"$DATA_PATH\" -Dapp.port=${app.port} -Dapp.log.path=\"$LOG_PATH/yyyy_mm_dd.log\""
+
     JAVA_OPTS=
-    if [ -r "$PRG_HOME"/etc/sysargs.properties ]; then
-        JAVA_OPTS=`awk '{a[NR+1]=$1}NR>1{printf "-D"a[NR]" "}END{print "-D"$1}' "$PRG_HOME"/etc/sysargs.properties`
+    if [ -r "$SYSARG_FILE" ]; then
+        echo loading additional sysargs from "$SYSARG_FILE"
+        JAVA_OPTS=`awk '{a[NR+1]=$1}NR>1{printf "-D"a[NR]" "}END{print "-D"$1}' "$SYSARG_FILE"`
+    else
+        echo no sysargs.properties found at "$SYSARG_FILE"
     fi
 }
 
 #Main Routine
+
+#check environment variable
+if [ -z "$ENVIRONMENT" ]; then
+    echo "variable ENVIRONMENT not set"
+    usage
+fi
+
+#get instance id from docker
+if [ -f "/proc/self/cgroup" ]; then
+    INSTANCE_ID=`cat /proc/self/cgroup | grep 'docker' | sed 's/^.*\///' | tail -n1 | cut -c1-12`
+else
+    INSTANCE_ID=singular
+fi
+
+CONFIG_PATH=/opt/${project.artifactId}/config
+VMOPTS_FILE="$CONFIG_PATH"/${project.artifactId}-vmargs.file
+SYSARG_FILE="$CONFIG_PATH"/${project.artifactId}-sysargs.properties
+DATA_PATH=/opt/${project.artifactId}/data/${project.artifactId}
+LOG_PATH=/opt/${project.artifactId}/logs/${project.artifactId}/$INSTANCE_ID
+
+mkdir -p $LOG_PATH
 
 [[ $# -lt 2 ]] && usage
 
@@ -113,7 +143,7 @@ RUNJAVA_APP="\"$_RUNJAVA\" $VM_OPTS $GAV_OPTS $JAVA_OPTS -classpath \"$CLASSPATH
 echo $RUNJAVA_APP
 
 if [ "$OPTYPE" = "-b" ]; then
-    eval 'nohup bash -c "$RUNJAVA_APP" </dev/null  >"$PRG_HOME"/logs/app.out 2>&1 &'
+    eval 'nohup bash -c "$RUNJAVA_APP" </dev/null  >"$LOG_PATH"/app.out 2>&1 &'
 else
-    eval $RUNJAVA_APP
+    eval $RUNJAVA_APP </dev/null  >"$LOG_PATH"/app.out 2>&1
 fi

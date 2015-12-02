@@ -23,22 +23,8 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/config/etc</directory>
-            <outputDirectory>etc</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-            <filtered>true</filtered>
-        </fileSet>
-        <fileSet>
             <directory>.</directory>
             <outputDirectory>pid</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>logs</outputDirectory>
             <excludes>
                 <exclude>*/**</exclude>
             </excludes>
