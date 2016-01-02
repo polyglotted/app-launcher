@@ -115,13 +115,14 @@ else
     INSTANCE_ID=singular
 fi
 
-CONFIG_PATH=/opt/${project.artifactId}/config
+CONFIG_PATH=/opt/${project.groupId}/config
 VMOPTS_FILE="$CONFIG_PATH"/${project.artifactId}-vmargs.file
 SYSARG_FILE="$CONFIG_PATH"/${project.artifactId}-sysargs.properties
-DATA_PATH=/opt/${project.artifactId}/data/${project.artifactId}
-LOG_PATH=/opt/${project.artifactId}/logs/${project.artifactId}/$INSTANCE_ID
+DATA_PATH=/opt/${project.groupId}/data/${project.artifactId}
+LOG_PATH=/opt/${project.groupId}/logs/${project.artifactId}/$INSTANCE_ID
 
-mkdir -p $LOG_PATH
+mkdir -p $DATA_PATH
+mkdir -p $LOG_PATH && touch $LOG_PATH/app.out
 
 [[ $# -lt 2 ]] && usage
 
