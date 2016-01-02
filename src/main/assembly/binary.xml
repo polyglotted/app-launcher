@@ -40,12 +40,5 @@
             <fileMode>0644</fileMode>
             <filtered>false</filtered>
         </fileSet>
-        <fileSet>
-            <directory>${project.basedir}/src/main/config/docker</directory>
-            <outputDirectory>docker</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-            <filtered>false</filtered>
-        </fileSet>
     </fileSets>
 </assembly>
