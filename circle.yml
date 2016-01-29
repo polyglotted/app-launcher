@@ -13,13 +13,9 @@ test:
   override:
     - mvn --settings .ci-settings.xml -Dassembly.skipAssembly=true verify
 deployment:
-  snapshot:
-    branch: master
-    commands:
-      - mvn --settings .ci-settings.xml deploy
   release:
-    tag: /release-.*/
+    branch: master
     commands:
       - git config user.email "circleci@polyglotted.io"
       - git config user.name "CircleCI"
-      - mvn -DskipTests --settings .ci-settings.xml --batch-mode release:prepare release:perform
+      - mvn --settings .ci-settings.xml --batch-mode release:prepare release:perform
