@@ -2,7 +2,7 @@
     <configuration default="false" name="${project.artifactId}-Main" type="Application" factoryName="Application">
         <option name="MAIN_CLASS_NAME" value="io.polyglotted.applauncher.server.Main"/>
         <option name="VM_PARAMETERS"
-                value="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=local -Dinstance=single -Dapp.dataDir=/app/current/${project.artifactId} -Dapp.port=${app.port}"/>
+                value="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=local -Dinstance=single -Dapp.dataDir=${app.directory}/data/${project.artifactId} -Dapp.port=${app.port} -Denvironment=local"/>
         <option name="PROGRAM_PARAMETERS" value=""/>
         <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$"/>
         <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false"/>

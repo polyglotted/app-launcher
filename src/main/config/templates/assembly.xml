@@ -22,13 +22,6 @@
             <fileMode>0755</fileMode>
             <filtered>true</filtered>
         </fileSet>
-        <fileSet>
-            <directory>.</directory>
-            <outputDirectory>pid</outputDirectory>
-            <excludes>
-                <exclude>*/**</exclude>
-            </excludes>
-        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>

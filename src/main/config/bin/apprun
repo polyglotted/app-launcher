@@ -1,0 +1,35 @@
+#Docker Main Routine
+#check environment variable
+if [ -z "$ENVIRONMENT" ]; then
+    echo "variable ENVIRONMENT not set"
+    exit 1
+fi
+
+if [ -z "$JAVA_OPTIONS" ]; then
+    echo "JAVA_OPTIONS not loaded"
+    JAVA_OPTIONS="-Xmx512m"
+fi
+
+if [ -z "$CRYPTO_PASSWORD" ]; then
+    echo "CRYPTO_PASSWORD not found"
+    CRYPTO_PASSWORD="no_password"
+fi
+
+#get instance id from docker
+if [ -f "/proc/self/cgroup" ]; then
+    INSTANCE_ID=`cat /proc/self/cgroup | grep 'docker' | sed 's/^.*\///' | tail -n1 | cut -c1-12`
+else
+    INSTANCE_ID=singular
+fi
+
+DATA_PATH=/opt/${project.groupId}/data/${project.artifactId}
+mkdir -p $DATA_PATH
+
+GAV_OPTS="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=$ENVIRONMENT"
+GAV_OPTS=$GAV_OPTS" -Dinstance=$INSTANCE_ID -Dapp.dataDir=$DATA_PATH -Dapp.port=${app.port} -Dcrypto.password=\"$CRYPTO_PASSWORD\""
+
+MAIN_CLASS="io.polyglotted.applauncher.server.Main"
+
+RUNJAVA_APP="/jre/bin/java $JAVA_OPTIONS $GAV_OPTS -classpath \"/opt/${project.groupId}/config:/app/${project.artifactId}/lib/*\" $MAIN_CLASS"
+echo $RUNJAVA_APP
+eval $RUNJAVA_APP 2>&1

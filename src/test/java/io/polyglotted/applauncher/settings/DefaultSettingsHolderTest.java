@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 import java.util.Properties;
 
+import static io.polyglotted.applauncher.crypto.CryptoClient.PASSWORD_SYSTEM_PROPERTY;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -36,6 +37,7 @@ public class DefaultSettingsHolderTest {
         SampleSettings sampleSettings = settings.proxy(SampleSettings.class);
         assertThat(sampleSettings.c(), is(equalTo("system_c")));
         assertThat(settings.stringValue("sample.c"), is(equalTo("system_c")));
+        System.clearProperty("sample.c");
     }
 
     @Test
@@ -96,6 +98,27 @@ public class DefaultSettingsHolderTest {
         assertThat(props.get("elastic.c"), is(equalTo("elastic_c")));
     }
 
+    @Test
+    public void shouldReadPropertiesFileAsConfig() {
+        System.setProperty(PASSWORD_SYSTEM_PROPERTY, "passwordkey");
+        SettingsHolder settings = new DefaultSettingsHolder("unit-test.properties");
+        SampleSettings sampleSettings = settings.proxy(SampleSettings.class);
+        assertThat(sampleSettings.password(), is(equalTo("my_password")));
+        System.clearProperty(PASSWORD_SYSTEM_PROPERTY);
+    }
+
+    @Test
+    public void shouldSupportMultilineStrings() {
+        SettingsHolder settings = new DefaultSettingsHolder();
+        assertThat(settings.stringValue("multiline.user").replace("\n", "").replace("\r", ""), is("foo:bar:qux:tux"));
+    }
+
+    @Test
+    public void shouldSupportMultilineStringsOnPropsFile() {
+        SettingsHolder settings = new DefaultSettingsHolder("unit-test.properties");
+        assertThat(settings.stringValue("multiline.props").replace("\n", "").replace("\r", ""), is("foo:bar:qux:tux"));
+    }
+
     @Test(expectedExceptions = {ConfigException.class})
     public void shouldErrorForUnknownKey() {
         SettingsHolder settings = new DefaultSettingsHolder();
@@ -109,6 +132,9 @@ public class DefaultSettingsHolderTest {
 
         @Attribute(name = "sample.b")
         String b();
+
+        @Attribute(name = "password", encrypted = true)
+        String password();
 
         @Attribute(name = "sample.c")
         default String c() { return "c"; }

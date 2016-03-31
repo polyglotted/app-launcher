@@ -12,4 +12,6 @@ public @interface Attribute {
     String name();
 
     boolean optional() default false;
+
+    boolean encrypted() default false;
 }
