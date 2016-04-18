@@ -25,6 +25,9 @@ public class DefaultSettingsHolder implements SettingsHolder {
         this(ConfigFactory.load(resource, ConfigParseOptions.defaults().setSyntax(ConfigSyntax.CONF), ConfigResolveOptions.defaults()));
     }
 
+    @SuppressWarnings("unused")
+    public DefaultSettingsHolder(Map<String, Object> map) { this(ConfigFactory.parseMap(map)); }
+
     public DefaultSettingsHolder() { this.config = ConfigFactory.load(); }
 
     private static final InvocationHandler MethodProxyInvocationHandler = methodProxyInvocationHandler();
