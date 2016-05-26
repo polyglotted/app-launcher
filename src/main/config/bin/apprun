@@ -17,7 +17,7 @@ fi
 
 GAV_OPTS="-DgroupId=${project.groupId} -DartifactId=${project.artifactId} -Dversion=${project.version} -Denvironment=$ENVIRONMENT -Dcrypto.password=\"$CRYPTO_PASSWORD\""
 MAIN_CLASS="io.polyglotted.applauncher.server.Main"
-RUNJAVA_APP="/jre/bin/java $JAVA_OPTIONS $GAV_OPTS -classpath \"/opt/${project.groupId}/config:/app/${project.artifactId}/lib/*\" $MAIN_CLASS"
+RUNJAVA_APP="/jre/bin/java $JAVA_OPTIONS $GAV_OPTS -classpath \"/opt/external:/opt/${project.groupId}/config:/app/${project.artifactId}/lib/*\" $MAIN_CLASS"
 
 echo $RUNJAVA_APP
 eval $RUNJAVA_APP 2>&1
