@@ -11,10 +11,9 @@ import lombok.experimental.Accessors;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
+
+import static java.util.Collections.addAll;
 
 @Accessors(fluent = true)
 @RequiredArgsConstructor
@@ -97,7 +96,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
 
     private <T> InvocationHandlerImpl buildInvocationHandler(Class<T> configurationInterface) {
         Map<String, Object> result = new HashMap<>();
-        Method[] declaredMethods = configurationInterface.getDeclaredMethods();
+        Method[] declaredMethods = fetchDeclaredMethods(configurationInterface);
         Object classProxy = Proxy.newProxyInstance(configurationInterface.getClassLoader(),
             new Class[]{configurationInterface}, MethodProxyInvocationHandler);
         CryptoClient cryptoClient = new CryptoClient();
@@ -114,7 +113,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
             throw new SettingsException("No properties are defined in @Settings "
                 + configurationInterface.getName());
         }
-        return new InvocationHandlerImpl(result);
+        return new InvocationHandlerImpl(classProxy, result);
     }
 
     @SneakyThrows(Exception.class)
@@ -228,10 +227,24 @@ public class DefaultSettingsHolder implements SettingsHolder {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     private static class InvocationHandlerImpl implements InvocationHandler {
+        private final Object classProxy;
         private final Map<String, Object> config;
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) { return config.get(method.getName()); }
+        public Object invoke(Object proxy, Method method, Object[] args) {
+            if (config.containsKey(method.getName())) return config.get(method.getName());
+            try {
+                return method.invoke(classProxy, args);
+            } catch (Exception ex) {
+                throw new RuntimeException("unexpected invocation", ex);
+            }
+        }
+    }
+
+    private static Method[] fetchDeclaredMethods(Class<?> clazz) {
+        List<Method> result = new LinkedList<>();
+        addAll(result, clazz.getDeclaredMethods());
+        for (Class<?> iface : clazz.getInterfaces()) addAll(result, iface.getDeclaredMethods());
+        return result.toArray(new Method[result.size()]);
     }
 }
-

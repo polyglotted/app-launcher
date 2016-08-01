@@ -104,6 +104,10 @@ public class DefaultSettingsHolderTest {
         SettingsHolder settings = new DefaultSettingsHolder("unit-test.properties");
         SampleSettings sampleSettings = settings.proxy(SampleSettings.class);
         assertThat(sampleSettings.password(), is(equalTo("my_password")));
+
+        ChildSettings childSettings = settings.proxy(ChildSettings.class);
+        assertThat(childSettings.password(), is(equalTo("my_password")));
+        assertThat(childSettings.childValue(), is(equalTo("my_child")));
         System.clearProperty(PASSWORD_SYSTEM_PROPERTY);
     }
 
@@ -141,5 +145,12 @@ public class DefaultSettingsHolderTest {
 
         @Attribute(name = "sample.d")
         default String d() { return "d"; }
+    }
+
+    @Settings
+    public interface ChildSettings extends SampleSettings {
+
+        @Attribute(name = "sample.child")
+        default String childValue() { return "my_child"; }
     }
 }
