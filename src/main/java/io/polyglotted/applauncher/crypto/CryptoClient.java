@@ -16,7 +16,7 @@ public final class CryptoClient {
     public CryptoClient() { this(resolvePassword()); }
 
     @VisibleForTesting
-    CryptoClient(String password) { this.encryptor = createEncryptor(password); }
+    public CryptoClient(String password) { this.encryptor = createEncryptor(password); }
 
     public String encrypt(String toEncrypt) {
         return (isNullOrEmpty(toEncrypt)) ? toEncrypt : String.format("%s%s%s", PREFIX, encryptor.encrypt(toEncrypt), SUFFIX);
