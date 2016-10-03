@@ -1,6 +1,5 @@
 package io.polyglotted.applauncher.settings;
 
-import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.*;
 import io.polyglotted.applauncher.crypto.CryptoClient;
 import lombok.AccessLevel;
@@ -12,6 +11,7 @@ import lombok.experimental.Accessors;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.Optional;
 
 import static java.util.Collections.addAll;
 
@@ -30,17 +30,21 @@ public class DefaultSettingsHolder implements SettingsHolder {
     public DefaultSettingsHolder() { this.config = ConfigFactory.load(); }
 
     private static final InvocationHandler MethodProxyInvocationHandler = methodProxyInvocationHandler();
-    private static final Map<Class<?>, PropertyType<?>> DefaultPropertyTypes = ImmutableMap.<Class<?>, PropertyType<?>>builder()
-        .put(int.class, new IntegerPropertyType())
-        .put(Integer.class, new IntegerPropertyType())
-        .put(long.class, new LongPropertyType())
-        .put(Long.class, new LongPropertyType())
-        .put(boolean.class, new BooleanPropertyType())
-        .put(Boolean.class, new BooleanPropertyType())
-        .put(double.class, new DoublePropertyType())
-        .put(Double.class, new DoublePropertyType())
-        .put(String.class, new StringPropertyType())
-        .build();
+    private static final Map<Class<?>, PropertyType<?>> DefaultPropertyTypes;
+
+    static {
+        Map<Class<?>, PropertyType<?>> propertyTypes = new LinkedHashMap<>(9);
+        propertyTypes.put(int.class, new IntegerPropertyType());
+        propertyTypes.put(Integer.class, new IntegerPropertyType());
+        propertyTypes.put(long.class, new LongPropertyType());
+        propertyTypes.put(Long.class, new LongPropertyType());
+        propertyTypes.put(boolean.class, new BooleanPropertyType());
+        propertyTypes.put(Boolean.class, new BooleanPropertyType());
+        propertyTypes.put(double.class, new DoublePropertyType());
+        propertyTypes.put(Double.class, new DoublePropertyType());
+        propertyTypes.put(String.class, new StringPropertyType());
+        DefaultPropertyTypes = Collections.unmodifiableMap(propertyTypes);
+    }
 
     @Override
     @SuppressWarnings("unchecked")

@@ -1,21 +1,18 @@
 package io.polyglotted.applauncher.crypto;
 
-import com.google.common.annotations.VisibleForTesting;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.UUID.randomUUID;
 
 public final class CryptoClient {
     public static final String PASSWORD_SYSTEM_PROPERTY = "crypto.password";
-    private static final String PREFIX =  "ENC(";
-    private static final String SUFFIX =  ")";
+    private static final String PREFIX = "ENC(";
+    private static final String SUFFIX = ")";
     private final StringEncryptor encryptor;
 
     public CryptoClient() { this(resolvePassword()); }
 
-    @VisibleForTesting
     public CryptoClient(String password) { this.encryptor = createEncryptor(password); }
 
     public String encrypt(String toEncrypt) {
@@ -44,4 +41,6 @@ public final class CryptoClient {
         encryptor.setAlgorithm("PBEWithMD5AndDES");
         return encryptor;
     }
+
+    private static boolean isNullOrEmpty(String word) { return word == null || "".equals(word); }
 }
