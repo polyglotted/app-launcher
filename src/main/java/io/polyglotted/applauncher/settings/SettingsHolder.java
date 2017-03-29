@@ -1,6 +1,7 @@
 package io.polyglotted.applauncher.settings;
 
 import com.typesafe.config.Config;
+import io.polyglotted.applauncher.crypto.CryptoClient;
 
 import java.util.Properties;
 
@@ -8,7 +9,9 @@ public interface SettingsHolder {
 
     Config config();
 
-    <T> T proxy(Class<T> configurationInterface);
+    default <T> T proxy(Class<T> configurationInterface) { return proxy(configurationInterface, new CryptoClient()); }
+
+    <T> T proxy(Class<T> configurationInterface, CryptoClient cryptoClient);
 
     Properties asProperties(String prefix, boolean includePrefix);
 

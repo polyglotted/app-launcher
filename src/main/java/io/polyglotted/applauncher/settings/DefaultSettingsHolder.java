@@ -15,6 +15,7 @@ import java.util.Optional;
 
 import static java.util.Collections.addAll;
 
+@SuppressWarnings("WeakerAccess")
 @Accessors(fluent = true)
 @RequiredArgsConstructor
 public class DefaultSettingsHolder implements SettingsHolder {
@@ -48,7 +49,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T proxy(Class<T> configurationInterface) {
+    public <T> T proxy(Class<T> configurationInterface, CryptoClient cryptoClient) {
         try {
             if (!configurationInterface.isInterface()) {
                 throw new SettingsException(configurationInterface.getName() + " is not an interface");
@@ -61,7 +62,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
             }
 
             Class<?> proxyClass = Proxy.getProxyClass(configurationInterface.getClassLoader(), configurationInterface);
-            InvocationHandlerImpl invocationHandler = buildInvocationHandler(configurationInterface);
+            InvocationHandlerImpl invocationHandler = buildInvocationHandler(configurationInterface, cryptoClient);
             return (T) proxyClass.getConstructor(InvocationHandler.class).newInstance(invocationHandler);
         } catch (SettingsException e) {
             throw e;
@@ -98,12 +99,11 @@ public class DefaultSettingsHolder implements SettingsHolder {
     @Override
     public double doubleValue(String name) { return config.getDouble(name); }
 
-    private <T> InvocationHandlerImpl buildInvocationHandler(Class<T> configurationInterface) {
+    private <T> InvocationHandlerImpl buildInvocationHandler(Class<T> configurationInterface, CryptoClient cryptoClient) {
         Map<String, Object> result = new HashMap<>();
         Method[] declaredMethods = fetchDeclaredMethods(configurationInterface);
         Object classProxy = Proxy.newProxyInstance(configurationInterface.getClassLoader(),
             new Class[]{configurationInterface}, MethodProxyInvocationHandler);
-        CryptoClient cryptoClient = new CryptoClient();
 
         for (Method method : declaredMethods) {
             if (!method.isAnnotationPresent(Attribute.class)) continue;
