@@ -3,7 +3,7 @@ package io.polyglotted.applauncher.settings;
 import com.typesafe.config.Config;
 import io.polyglotted.applauncher.crypto.CryptoClient;
 
-import java.util.Properties;
+import java.util.Map;
 
 public interface SettingsHolder {
 
@@ -13,7 +13,7 @@ public interface SettingsHolder {
 
     <T> T proxy(Class<T> configurationInterface, CryptoClient cryptoClient);
 
-    Properties asProperties(String prefix, boolean includePrefix);
+    Map<String, Object> asProperties(String prefix, boolean includePrefix);
 
     boolean hasValue(String name);
 

@@ -72,11 +72,11 @@ public class DefaultSettingsHolder implements SettingsHolder {
     }
 
     @Override
-    public Properties asProperties(String prefix, boolean includePrefix) {
-        final Properties props = new Properties();
+    public Map<String, Object> asProperties(String prefix, boolean includePrefix) {
+        final Map<String, Object> props = new LinkedHashMap<>();
         config.entrySet().parallelStream().filter(entry -> entry.getKey().startsWith(prefix)).forEach(entry -> {
             String key = includePrefix ? entry.getKey() : entry.getKey().replace(prefix + ".", "");
-            props.put(key, String.valueOf(entry.getValue().unwrapped()));
+            props.put(key, entry.getValue().unwrapped());
         });
         return props;
     }

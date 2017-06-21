@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigException;
 import com.typesafe.config.ConfigFactory;
 import org.testng.annotations.Test;
 
-import java.util.Properties;
+import java.util.Map;
 
 import static io.polyglotted.applauncher.crypto.CryptoClient.PASSWORD_SYSTEM_PROPERTY;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -81,7 +81,7 @@ public class DefaultSettingsHolderTest {
     @Test
     public void shouldAsPropertiesWithoutPrefix() {
         SettingsHolder settings = new DefaultSettingsHolder();
-        Properties props = settings.asProperties("elastic", false);
+        Map<String, Object> props = settings.asProperties("elastic", false);
         assertThat(props.size(), is(equalTo(3)));
         assertThat(props.get("a"), is(equalTo("elastic_a")));
         assertThat(props.get("b"), is(equalTo("elastic_b")));
@@ -91,7 +91,7 @@ public class DefaultSettingsHolderTest {
     @Test
     public void shouldAsPropertiesWithPrefix() {
         SettingsHolder settings = new DefaultSettingsHolder();
-        Properties props = settings.asProperties("elastic", true);
+        Map<String, Object> props = settings.asProperties("elastic", true);
         assertThat(props.size(), is(equalTo(3)));
         assertThat(props.get("elastic.a"), is(equalTo("elastic_a")));
         assertThat(props.get("elastic.b"), is(equalTo("elastic_b")));
