@@ -515,7 +515,7 @@
                                     <!--  hack for ci tools  -->
                                     <defaultKeyring>false</defaultKeyring>
                                     <homedir>${project.build.directory}/gpglocal</homedir>
-                                    <useAgent>true</useAgent>
+                                    <useAgent>false</useAgent>
                                 </configuration>
                                 <goals>
                                     <goal>sign</goal>
