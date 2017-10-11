@@ -330,8 +330,6 @@
                         <exclude>**/*IntegTest.java</exclude>
                         <exclude>**/*$*</exclude>
                     </excludes>
-                    <parallel>methods</parallel>
-                    <threadCount>10</threadCount>
                 </configuration>
             </plugin>
             <plugin>
