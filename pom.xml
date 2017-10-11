@@ -515,6 +515,9 @@
                                     <!--  hack for ci tools  -->
                                     <defaultKeyring>false</defaultKeyring>
                                     <homedir>${project.build.directory}/gpglocal</homedir>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode loopback</arg>
+                                    </gpgArguments>
                                 </configuration>
                                 <goals>
                                     <goal>sign</goal>
