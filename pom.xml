@@ -100,7 +100,7 @@
         <deploy.plugin.version>2.8.2</deploy.plugin.version>
         <source.plugin.version>3.0.1</source.plugin.version>
         <javadoc.plugin.version>3.0.0-M1</javadoc.plugin.version>
-        <gpg.plugin.version>1.6</gpg.plugin.version>
+        <gpg.plugin.version>1.4</gpg.plugin.version>
         <release.plugin.version>2.5.3</release.plugin.version>
         <antrun.plugin.version>1.8</antrun.plugin.version>
         <gitexe.plugin.version>1.9.5</gitexe.plugin.version>
@@ -515,9 +515,6 @@
                                     <!--  hack for ci tools  -->
                                     <defaultKeyring>false</defaultKeyring>
                                     <homedir>${project.build.directory}/gpglocal</homedir>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode loopback</arg>
-                                    </gpgArguments>
                                 </configuration>
                                 <goals>
                                     <goal>sign</goal>
