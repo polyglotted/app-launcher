@@ -103,7 +103,6 @@
         <javadoc.plugin.version>3.0.0-M1</javadoc.plugin.version>
         <gpg.plugin.version>1.6</gpg.plugin.version>
         <release.plugin.version>2.5.3</release.plugin.version>
-        <antrun.plugin.version>1.8</antrun.plugin.version>
         <gitexe.plugin.version>1.9.5</gitexe.plugin.version>
         <plexus.plugin.version>1.9.5</plexus.plugin.version>
         <jacoco.plugin.version>0.7.9</jacoco.plugin.version>
