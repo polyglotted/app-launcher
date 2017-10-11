@@ -11,15 +11,4 @@
             <password>${NEXUS_PASS}</password>
         </server>
     </servers>
-    <profiles>
-        <profile>
-            <id>gpg</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <properties>
-                <gpg.passphrase>${GPG_PASS}</gpg.passphrase>
-            </properties>
-        </profile>
-    </profiles>
 </settings>
