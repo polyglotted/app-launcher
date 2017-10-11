@@ -24,7 +24,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      - run: mvn --settings .ci-settings.xml -Pemma-coverage -Dassembly.skipAssembly=true verify
+      - run: mvn --settings .ci-settings.xml -Pemma-coverage -Preleasable -Dassembly.skipAssembly=true verify
       - run:
           name: Collect Test Artifacts
           command: |
