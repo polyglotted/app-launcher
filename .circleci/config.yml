@@ -24,7 +24,7 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      - run: curl ${GPG_OUT} -o private.key && gpg2 --allow-secret-key-import --import private.key
+      - run: curl ${GPG_OUT} -o private.key && gpg2 --passphrase ${GPG_PASS} --allow-secret-key-import --import private.key
       - run: mvn --settings .ci-settings.xml -Pemma-coverage -Preleasable -Dassembly.skipAssembly=true verify
       - run:
           name: Collect Test Artifacts
