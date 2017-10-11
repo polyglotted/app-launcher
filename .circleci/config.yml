@@ -1,0 +1,48 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/openjdk:8-jdk
+    working_directory: ~/app-launcher
+    environment:
+      MAVEN_OPTS: -Xmx3200m
+      artifact_dir: "tmp/artifacts"
+
+    steps:
+      - checkout
+      - run:
+          name: Setup Build Variables
+          command: echo 'export COMMIT_MESSAGE="$(git log --format=oneline -n 1 $CIRCLE_SHA1)"' >> $BASH_ENV
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "pom.xml" }}
+          - v1-dependencies-
+      - run: mvn --settings .ci-settings.xml -DskipTests -Dassembly.skipAssembly=true install
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: v1-dependencies-{{ checksum "pom.xml" }}
+
+      - run: mvn --settings .ci-settings.xml -Pemma-coverage -Dassembly.skipAssembly=true verify
+      - run:
+          name: Collect Test Artifacts
+          command: |
+            mkdir -p ${artifact_dir}/unit-test/ ${artifact_dir}/integration/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ${artifact_dir}/unit-test/ \;
+            find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ${artifact_dir}/integration/ \;
+          when: always
+      - store_artifacts:
+          path: tmp/artifacts
+      - run:
+          name: Upload Code Coverage
+          command: 'bash <(curl -s https://codecov.io/bash) -t 11358a52-43bc-49ef-b393-d8f8e13c4109'
+
+      - deploy:
+          name: Maven Deploy
+          command: |
+            if [[ ${COMMIT_MESSAGE} == *"prepare for release"* ]]; then
+                git config user.email "circleci@polyglotted.io"
+                git config user.name "CircleCI"
+                mvn --settings .ci-settings.xml --batch-mode release:prepare release:perform
+            fi

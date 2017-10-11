@@ -18,6 +18,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
+                <gpg.pubring>${PUB_RING}</gpg.pubring>
+                <gpg.secring>${SEC_RING}</gpg.secring>
+                <gpg.trustdb>${TRUST_DB}</gpg.trustdb>
                 <gpg.passphrase>${GPG_PASS}</gpg.passphrase>
             </properties>
         </profile>
