@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface SettingsHolder {
 
-    Config config();
+    @SuppressWarnings("unused") Config config();
 
     default <T> T proxy(Class<T> configurationInterface) { return proxy(configurationInterface, new CryptoClient()); }
 
@@ -17,14 +17,23 @@ public interface SettingsHolder {
 
     boolean hasValue(String name);
 
+    String stringValue(String name, String defValue);
+
     String stringValue(String name);
+
+    int intValue(String name, int defValue);
 
     int intValue(String name);
 
+    boolean booleanValue(String name, boolean defValue);
+
     boolean booleanValue(String name);
+
+    long longValue(String name, long defValue);
 
     long longValue(String name);
 
-    double doubleValue(String name);
+    double doubleValue(String name, double defValue);
 
+    double doubleValue(String name);
 }

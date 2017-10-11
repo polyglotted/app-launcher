@@ -123,6 +123,16 @@ public class DefaultSettingsHolderTest {
         assertThat(settings.stringValue("multiline.props").replace("\n", "").replace("\r", ""), is("foo:bar:qux:tux"));
     }
 
+    @Test
+    public void shouldSupportDefaultValues() {
+        SettingsHolder settings = new DefaultSettingsHolder("unit-test.properties");
+        assertThat(settings.stringValue("unknown", "defStr"), is("defStr"));
+        assertThat(settings.intValue("unknown", 25), is(25));
+        assertThat(settings.booleanValue("unknown", true), is(true));
+        assertThat(settings.longValue("unknown", 12L), is(12L));
+        assertThat(settings.doubleValue("unknown", 2.0), is(2.0));
+    }
+
     @Test(expectedExceptions = {ConfigException.class})
     public void shouldErrorForUnknownKey() {
         SettingsHolder settings = new DefaultSettingsHolder();

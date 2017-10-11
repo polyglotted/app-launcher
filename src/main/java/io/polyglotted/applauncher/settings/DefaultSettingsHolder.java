@@ -74,7 +74,7 @@ public class DefaultSettingsHolder implements SettingsHolder {
     @Override
     public Map<String, Object> asProperties(String prefix, boolean includePrefix) {
         final Map<String, Object> props = new LinkedHashMap<>();
-        config.entrySet().parallelStream().filter(entry -> entry.getKey().startsWith(prefix)).forEach(entry -> {
+        config.entrySet().stream().filter(entry -> entry.getKey().startsWith(prefix)).forEach(entry -> {
             String key = includePrefix ? entry.getKey() : entry.getKey().replace(prefix + ".", "");
             props.put(key, entry.getValue().unwrapped());
         });
@@ -85,16 +85,31 @@ public class DefaultSettingsHolder implements SettingsHolder {
     public boolean hasValue(String name) { return config.hasPath(name); }
 
     @Override
+    public String stringValue(String name, String defValue) { return hasValue(name) ? stringValue(name) : defValue; }
+
+    @Override
     public String stringValue(String name) { return config.getString(name); }
+
+    @Override
+    public int intValue(String name, int defValue) { return hasValue(name) ? intValue(name) : defValue; }
 
     @Override
     public int intValue(String name) { return config.getInt(name); }
 
     @Override
+    public boolean booleanValue(String name, boolean defValue) { return hasValue(name) ? booleanValue(name) : defValue; }
+
+    @Override
     public boolean booleanValue(String name) { return config.getBoolean(name); }
 
     @Override
+    public long longValue(String name, long defValue) { return hasValue(name) ? longValue(name) : defValue; }
+
+    @Override
     public long longValue(String name) { return config.getLong(name); }
+
+    @Override
+    public double doubleValue(String name, double defValue) { return hasValue(name) ? doubleValue(name) : defValue; }
 
     @Override
     public double doubleValue(String name) { return config.getDouble(name); }
