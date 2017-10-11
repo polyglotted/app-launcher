@@ -482,41 +482,12 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${antrun.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>copy-gpgs</id>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <get dest="${project.build.directory}/gpglocal">
-                                            <url url="${gpg.pubring}"/>
-                                            <url url="${gpg.secring}"/>
-                                            <url url="${gpg.trustdb}"/>
-                                        </get>
-                                        <chmod dir="${project.build.directory}/gpglocal" perm="700"/>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>${gpg.plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
                                 <phase>verify</phase>
-                                <configuration>
-                                    <!--  hack for ci tools  -->
-                                    <defaultKeyring>false</defaultKeyring>
-                                    <homedir>${project.build.directory}/gpglocal</homedir>
-                                </configuration>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
