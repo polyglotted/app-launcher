@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Setup Build Variables
-          command: echo 'export COMMIT_MESSAGE="$(git log --format=oneline -n 1 $CIRCLE_SHA1)" GPG_TTY="$(tty)" gpg.passphrase="$GPG_PASS"' >> $BASH_ENV
+          command: echo 'export COMMIT_MESSAGE="$(git log --format=oneline -n 1 $CIRCLE_SHA1)"' >> $BASH_ENV
 
       - restore_cache:
           keys:
@@ -24,7 +24,6 @@ jobs:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
 
-      - run: which gpg && gpg --version
       - run: mvn --settings .ci-settings.xml -Pemma-coverage -Preleasable -Dassembly.skipAssembly=true verify
       - run:
           name: Collect Test Artifacts
