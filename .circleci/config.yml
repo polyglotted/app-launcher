@@ -12,7 +12,7 @@ jobs:
       - checkout
       - run:
           name: Setup Build Variables
-          command: echo 'export COMMIT_MESSAGE="$(git log --format=oneline -n 1 $CIRCLE_SHA1)"' >> $BASH_ENV
+          command: echo 'export COMMIT_MESSAGE="$(git log --format=oneline -n 1 $CIRCLE_SHA1)" GPG_TTY="$(tty)" PASSPHRASE="$GPG_PASS"' >> $BASH_ENV
 
       - restore_cache:
           keys:
