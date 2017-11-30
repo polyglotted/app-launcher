@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.polyglotted</groupId>
     <artifactId>app-launcher</artifactId>
-    <version>3.0.2-SNAPSHOT</version>
+    <version>3.0.2</version>
     <name>App Launcher</name>
 
     <description>Launch an in-process application</description>
@@ -30,7 +30,7 @@
     <scm>
         <url>https://github.com/polyglotted/app-launcher</url>
         <developerConnection>scm:git:git@github.com:polyglotted/app-launcher.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v3.0.2</tag>
     </scm>
     <issueManagement>
         <system>GitHub Issue Management</system>
